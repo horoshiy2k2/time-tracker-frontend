@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import "../styles/mixColorPopup.css";
+import { getClosestColorName } from "../utils/colorNames";
 
 export enum Rarity {
   COMMON = "COMMON",
@@ -118,6 +119,20 @@ export default function MixColorPopup({
     }
   };
 
+  const previewColorName = getClosestColorName(previewColor);
+  const previewPaintAmount = previewColor.r + previewColor.g + previewColor.b;
+
+  const getRarityByPaintAmount = (paintAmount: number): Rarity => {
+    if (paintAmount <= 153) return Rarity.COMMON;
+    if (paintAmount <= 306) return Rarity.UNCOMMON;
+    if (paintAmount <= 459) return Rarity.RARE;
+    if (paintAmount <= 612) return Rarity.EPIC;
+    return Rarity.LEGENDARY;
+  };
+
+  const previewRarity = getRarityByPaintAmount(previewPaintAmount);
+  const previewRarityClass = previewRarity.toLowerCase();
+
   const renderEmoji = (item:any)=>{
 
     if(item.type === ItemType.CHEST){
@@ -146,7 +161,7 @@ export default function MixColorPopup({
     <>
       <div className="lootOverlay" onClick={onClose}>
 
-        <div className="lootCard" onClick={e => e.stopPropagation()}>
+        <div className="lootCard" style={{padding: '10px'}} onClick={e => e.stopPropagation()}>
 
           <h2>Available Color Drops</h2>
 
@@ -166,7 +181,12 @@ export default function MixColorPopup({
                   onClick={() => toggleDrop(drop)}
                 >
 
-                  {renderEmoji(drop)}
+                  {renderEmoji(drop)} 
+                  <div className="mixRgbValues">
+                    <span>{drop.r ? "R: " + drop.r:''}</span>
+                    <span>{drop.g ? "G: " + drop.g:''}</span>
+                    <span>{drop.b ? "B: " + drop.b:''}</span>
+                  </div>
 
                 </div>
 
@@ -189,11 +209,23 @@ export default function MixColorPopup({
 
                     <div
                       key={i}
-                      className={`mixItem ${drop?.rarity?.toLowerCase() || ""}`}
+                      className={`mixItem mixSlotItem ${drop?.rarity?.toLowerCase() || ""} ${drop ? "" : "mixSlotItemEmpty"}`}
                       onClick={() => drop && toggleDrop(drop)}
                     >
 
-                      {drop ? renderEmoji(drop) : "+"}
+                      {drop ? (
+                        <>
+                          {renderEmoji(drop)}
+
+                          <div className="mixRgbValues">
+                            <span>{drop.r ? "R: " + drop.r:''}</span>
+                            <span>{drop.g ? "G: " + drop.g:''}</span>
+                            <span>{drop.b ? "B: " + drop.b:''}</span>
+                          </div>
+                        </>
+                      ) : (
+                        "+"
+                      )}
 
                     </div>
 
@@ -210,12 +242,22 @@ export default function MixColorPopup({
 
                 <div className="mixPreview">
 
-                  <div
-                    className="mixColorBlock"
-                    style={{
-                      backgroundColor:`rgb(${previewColor.r},${previewColor.g},${previewColor.b})`
-                    }}
-                  />
+                  <div className={`mixItem mixPreviewCard ${previewRarityClass}`}>
+                    <div
+                      className="mixColorBlock"
+                      style={{
+                        backgroundColor:`rgb(${previewColor.r},${previewColor.g},${previewColor.b})`
+                      }}
+                    />
+
+                    <div className="mixPreviewInfo">
+                      <span>R: {previewColor.r}</span>
+                      <span>G: {previewColor.g}</span>
+                      <span>B: {previewColor.b}</span>
+                      <span>Name: {previewColorName}</span>
+                      <span>Rarity: {previewRarity}</span>
+                    </div>
+                  </div>
 
                 </div>
 
@@ -236,56 +278,6 @@ export default function MixColorPopup({
         </div>
 
       </div>
-
-
-      {/*{newColor && (
-        <div
-          className="lootOverlay"
-          onClick={() => setNewColor(null)}
-          style={{
-            position: "fixed",
-            inset: 0,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            background: "rgba(0,0,0,0.25)",
-            zIndex: 9999, // точно выше всех
-          }}
-        >
-          <div
-            className="lootCard"
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              maxWidth: "400px",
-              textAlign: "center",
-              padding: "30px",
-            }}
-          >
-            <h2>New Color Created!</h2>
-
-            <div
-              className={`mixItem ${newColor.rarity.toLowerCase()}`}
-              style={{ margin: "0 auto", width: 120, height: 120 }}
-            >
-              <div
-                className="mixColorBlock"
-                style={{
-                  width: 80,
-                  height: 80,
-                  backgroundColor: `rgb(${newColor.r},${newColor.g},${newColor.b})`,
-                }}
-              />
-            </div>
-
-            <div
-              className="lootRarity"
-              style={{ marginTop: "8px", fontWeight: 700 }}
-            >
-              {newColor.rarity.toUpperCase()} - Cost: {newColor.cost}
-            </div>
-          </div>
-        </div>
-      )}*/}
 
     </>
 
