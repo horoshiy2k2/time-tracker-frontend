@@ -881,15 +881,7 @@ useEffect(() => {
               Clear Inventory DB
             </button>
 
-            <label style={{ marginLeft: "1em", display: "inline-flex", alignItems: "center", gap: "0.5em" }}>
-              <input
-                type="checkbox"
-                checked={theme.darkThemeEnabled}
-                disabled={themeModeLoading}
-                onChange={toggleNightMode}
-              />
-              Ночная тема
-            </label>
+            
 
             <button
               style={{ marginLeft: "1em" }}
@@ -905,6 +897,36 @@ useEffect(() => {
             >
               🎨 Reset Theme
             </button>
+
+            <label
+              style={{
+                marginLeft: "1em",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.6em",
+                padding: "6px 10px",
+                borderRadius: "8px",
+                background: theme.darkThemeEnabled ? "#1f232b" : "#f3f3f3",
+                color: theme.darkThemeEnabled ? "#e6e6e6" : "#222",
+                border: "1px solid rgba(0,0,0,0.1)",
+                cursor: themeModeLoading ? "not-allowed" : "pointer",
+                transition: "all 0.2s ease",
+                userSelect: "none"
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={theme.darkThemeEnabled}
+                disabled={themeModeLoading}
+                onChange={toggleNightMode}
+                style={{
+                  cursor: themeModeLoading ? "not-allowed" : "pointer",
+                  transform: "scale(1.1)"
+                }}
+              />
+
+              Dark theme {theme.darkThemeEnabled ? "🌑" : "☀️"}
+            </label>
 
           </>
         )}
