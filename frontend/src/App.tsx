@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef, useMemo, type CSSProperties } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import axios from "axios";
 import HourProgressCircle from "./components/HourProgressCircle";
 import CoinAnimation from "./components/CoinAnimation";
 import MonthHeatmap from "./components/MonthHeatmap";
 import Inventory from "./components/Inventory";
 import Shop from "./components/Shop";
+import ThemedSelect from "./components/ThemedSelect";
 
 import "./styles/buttons.css";
 import {
@@ -27,10 +28,6 @@ import "./styles/shop.css";
 
 const API = import.meta.env.VITE_API_URL;
 
-
-const getSelectAccentStyle = (color: string): CSSProperties => ({
-  "--select-accent": color,
-} as CSSProperties);
 
 export default function App() {
   const [editingMinutes, setEditingMinutes] = useState<number>(0);
@@ -528,21 +525,18 @@ useEffect(() => {
                 {!currentSession ? "Start" : "Stop"}
               </button>
 
-              <div className="timerCategorySelect" style={getSelectAccentStyle(theme.buttonColor)}>
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  disabled={!!currentSession}
-                  className="modernSelect"
-                >
-                  {categories.length === 0 && <option value="no-category">No category</option>}
-                  {categories.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <ThemedSelect
+                value={selectedCategory}
+                onChange={setSelectedCategory}
+                disabled={!!currentSession}
+                accentColor={theme.buttonColor}
+                className="timerCategorySelect"
+                options={
+                  categories.length === 0
+                    ? [{ value: "no-category", label: "No category" }]
+                    : categories.map((c) => ({ value: c.id, label: c.name }))
+                }
+              />
 
             </div>
           </>
@@ -633,20 +627,16 @@ useEffect(() => {
 
                     {/* Категория */}
                     <div style={{ marginTop: "0.8em", marginBottom: "0.5em" }}>Category:</div>
-                    <div className="sessionSelect" style={getSelectAccentStyle(theme.buttonColor)}>
-                      <select
-                        value={editingCategoryId || ""}
-                        onChange={(e) => setEditingCategoryId(e.target.value ? e.target.value : null)}
-                        className="modernSelect"
-                      >
-                        <option value="">No category</option>
-                        {categories.map((c) => (
-                          <option key={c.id} value={c.id}>
-                            {c.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                    <ThemedSelect
+                      value={editingCategoryId || ""}
+                      onChange={(value) => setEditingCategoryId(value ? value : null)}
+                      accentColor={theme.buttonColor}
+                      className="sessionSelect"
+                      options={[
+                        { value: "", label: "No category" },
+                        ...categories.map((c) => ({ value: c.id, label: c.name })),
+                      ]}
+                    />
 
                     {/* Дата */}
                     <div style={{ marginTop: "0.8em", marginBottom: "0.5em" }}>Date:</div>

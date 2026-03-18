@@ -228,61 +228,63 @@ body.night .sessionDate{
 .timerCategorySelect{
   --select-accent: var(--button-color);
   position: relative;
-  margin: 0.5em 0;
+  width: 260px;
+  margin: .5em 0 1em;
 }
 
-.sessionSelect{ width:200px; }
-.timerCategorySelect{ width:260px; margin-bottom:1em; }
+.sessionSelect{ width:200px; margin:.5em 0; }
 
-.sessionSelect::after,
-.timerCategorySelect::after{
-  content:"";
-  position:absolute;
-  right:14px;
-  top:50%;
-  width:9px;
-  height:9px;
-  border-right:2px solid var(--select-accent);
-  border-bottom:2px solid var(--select-accent);
-  transform:translateY(-70%) rotate(45deg);
-  pointer-events:none;
-}
-
-.modernSelect{
+.fancySelectTrigger{
   width:100%;
   margin:0;
-  appearance:none;
-  -webkit-appearance:none;
-  border-radius:16px;
-  padding:0.72em 2.2em 0.72em 0.9em;
-  font-size:0.98em;
+  padding:.72em .9em;
+  border-radius:14px;
+  border:1px solid color-mix(in srgb, var(--select-accent) 50%, #cfd5e6);
+  background: color-mix(in srgb, var(--select-accent) 8%, #fff);
+  color:#1f2937;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
   font-weight:600;
-  border:1px solid color-mix(in srgb, var(--select-accent) 42%, #d5d9e2);
-  background:
-    radial-gradient(circle at 16% 22%, color-mix(in srgb, var(--select-accent) 16%, transparent) 0%, transparent 52%),
-    linear-gradient(135deg, #ffffff 0%, #f4f7ff 100%);
-  box-shadow:
-    0 8px 24px color-mix(in srgb, var(--select-accent) 16%, transparent),
-    inset 0 1px 0 #ffffff;
-  transition:all .2s ease;
-  cursor:pointer;
 }
 
-.modernSelect:hover{
-  transform:translateY(-1px);
-  border-color:var(--select-accent);
-}
-
-.modernSelect:focus{
+.fancySelectTrigger:focus-visible{
   outline:none;
-  border-color:var(--select-accent);
   box-shadow:0 0 0 4px color-mix(in srgb, var(--select-accent) 22%, transparent);
 }
 
-.modernSelect:disabled{
-  opacity:.6;
-  cursor:not-allowed;
-  transform:none;
+.caret{ color:var(--select-accent); transition:transform .18s; }
+.caret.open{ transform:rotate(180deg); }
+
+.fancySelectMenu{
+  position:absolute;
+  z-index:50;
+  top:calc(100% + 8px);
+  left:0;
+  right:0;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  padding:6px;
+  border-radius:14px;
+  border:1px solid color-mix(in srgb, var(--select-accent) 45%, #cfd5e6);
+  background:#fff;
+  box-shadow:0 14px 28px color-mix(in srgb, var(--select-accent) 22%, transparent);
+}
+
+.fancySelectOption{
+  margin:0;
+  border:none;
+  border-radius:10px;
+  padding:.6em .7em;
+  text-align:left;
+  background:transparent;
+  color:#111827;
+}
+
+.fancySelectOption:hover,
+.fancySelectOption.active{
+  background:color-mix(in srgb, var(--select-accent) 16%, transparent);
 }
 
 /* NIGHT MODE INPUTS */
@@ -294,13 +296,19 @@ body.night .sessionInputMedium{
   color:#e6e6e6;
 }
 
-body.night .modernSelect{
+body.night .fancySelectTrigger{
   color:#e6e6e6;
-  border-color: color-mix(in srgb, var(--select-accent) 42%, #2e3442);
-  background:
-    radial-gradient(circle at 16% 22%, color-mix(in srgb, var(--select-accent) 18%, transparent) 0%, transparent 52%),
-    linear-gradient(135deg, #171c26 0%, #0f141c 100%);
-  box-shadow: 0 8px 24px color-mix(in srgb, var(--select-accent) 18%, transparent);
+  border-color: color-mix(in srgb, var(--select-accent) 46%, #2f3747);
+  background: color-mix(in srgb, var(--select-accent) 10%, #161b24);
+}
+
+body.night .fancySelectMenu{
+  background:#151b26;
+  border-color: color-mix(in srgb, var(--select-accent) 44%, #2f3747);
+}
+
+body.night .fancySelectOption{
+  color:#e6e6e6;
 }
 
 
