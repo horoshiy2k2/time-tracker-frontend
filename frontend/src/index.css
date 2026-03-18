@@ -224,14 +224,65 @@ body.night .sessionDate{
   border:1px solid #ccc;
 }
 
-.sessionSelect{
-  width:200px;
+.sessionSelect,
+.timerCategorySelect{
+  --select-accent: var(--button-color);
+  position: relative;
   margin: 0.5em 0;
 }
 
-.timerCategorySelect{
-  width: 260px;
-  margin-bottom: 1em;
+.sessionSelect{ width:200px; }
+.timerCategorySelect{ width:260px; margin-bottom:1em; }
+
+.sessionSelect::after,
+.timerCategorySelect::after{
+  content:"";
+  position:absolute;
+  right:14px;
+  top:50%;
+  width:9px;
+  height:9px;
+  border-right:2px solid var(--select-accent);
+  border-bottom:2px solid var(--select-accent);
+  transform:translateY(-70%) rotate(45deg);
+  pointer-events:none;
+}
+
+.modernSelect{
+  width:100%;
+  margin:0;
+  appearance:none;
+  -webkit-appearance:none;
+  border-radius:16px;
+  padding:0.72em 2.2em 0.72em 0.9em;
+  font-size:0.98em;
+  font-weight:600;
+  border:1px solid color-mix(in srgb, var(--select-accent) 42%, #d5d9e2);
+  background:
+    radial-gradient(circle at 16% 22%, color-mix(in srgb, var(--select-accent) 16%, transparent) 0%, transparent 52%),
+    linear-gradient(135deg, #ffffff 0%, #f4f7ff 100%);
+  box-shadow:
+    0 8px 24px color-mix(in srgb, var(--select-accent) 16%, transparent),
+    inset 0 1px 0 #ffffff;
+  transition:all .2s ease;
+  cursor:pointer;
+}
+
+.modernSelect:hover{
+  transform:translateY(-1px);
+  border-color:var(--select-accent);
+}
+
+.modernSelect:focus{
+  outline:none;
+  border-color:var(--select-accent);
+  box-shadow:0 0 0 4px color-mix(in srgb, var(--select-accent) 22%, transparent);
+}
+
+.modernSelect:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+  transform:none;
 }
 
 /* NIGHT MODE INPUTS */
@@ -241,6 +292,15 @@ body.night .sessionInputMedium{
   background:#161a22;
   border:1px solid #333;
   color:#e6e6e6;
+}
+
+body.night .modernSelect{
+  color:#e6e6e6;
+  border-color: color-mix(in srgb, var(--select-accent) 42%, #2e3442);
+  background:
+    radial-gradient(circle at 16% 22%, color-mix(in srgb, var(--select-accent) 18%, transparent) 0%, transparent 52%),
+    linear-gradient(135deg, #171c26 0%, #0f141c 100%);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--select-accent) 18%, transparent);
 }
 
 
