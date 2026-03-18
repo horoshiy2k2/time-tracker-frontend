@@ -6,7 +6,7 @@ interface Props {
 }
 
 function getLapColor(progressColor: string, lap: number): string {
-  if (lap === 0) {
+  if (lap <= 0) {
     return progressColor;
   }
 
@@ -27,15 +27,16 @@ export default function HourProgressCircle({ seconds, progressColor }: Props) {
   const completedLaps = Math.floor(totalProgress);
   const currentLapProgress = totalProgress - completedLaps;
 
-  const visibleLaps = Math.max(
-    currentLapProgress === 0 ? completedLaps : completedLaps + 1,
-    1,
-  );
+  const activeLapColor = getLapColor(progressColor, completedLaps);
+  const completedLapColor =
+    completedLaps > 0 ? getLapColor(progressColor, completedLaps - 1) : "#eee";
+
+  const strokeDashoffset = circumference - currentLapProgress * circumference;
 
   return (
     <svg height={radius * 2} width={radius * 2}>
       <circle
-        stroke="#eee"
+        stroke={completedLapColor}
         fill="transparent"
         strokeWidth={stroke}
         r={normalizedRadius}
@@ -43,30 +44,20 @@ export default function HourProgressCircle({ seconds, progressColor }: Props) {
         cy={radius}
       />
 
-      {Array.from({ length: visibleLaps }, (_, lap) => {
-        const lapProgress = lap < completedLaps ? 1 : currentLapProgress;
-        const strokeDashoffset = circumference - lapProgress * circumference;
-
-        if (lapProgress <= 0) {
-          return null;
-        }
-
-        return (
-          <circle
-            key={lap}
-            stroke={getLapColor(progressColor, lap)}
-            fill="transparent"
-            strokeWidth={stroke}
-            strokeDasharray={`${circumference} ${circumference}`}
-            strokeDashoffset={strokeDashoffset}
-            strokeLinecap={lapProgress === 1 ? "butt" : "round"}
-            r={normalizedRadius}
-            cx={radius}
-            cy={radius}
-            transform={`rotate(-90 ${radius} ${radius})`}
-          />
-        );
-      })}
+      {currentLapProgress > 0 && (
+        <circle
+          stroke={activeLapColor}
+          fill="transparent"
+          strokeWidth={stroke}
+          strokeDasharray={`${circumference} ${circumference}`}
+          strokeDashoffset={strokeDashoffset}
+          strokeLinecap="round"
+          r={normalizedRadius}
+          cx={radius}
+          cy={radius}
+          transform={`rotate(-90 ${radius} ${radius})`}
+        />
+      )}
 
       <text
         x="50%"
