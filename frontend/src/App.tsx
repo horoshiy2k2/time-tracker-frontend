@@ -26,6 +26,23 @@ import "./styles/shop.css";
 
 
 const API = import.meta.env.VITE_API_URL;
+const THEME_STORAGE_KEY = "timerTheme";
+
+type ThemeState = {
+  progressColor: string;
+  textColor: string;
+  buttonColor: string;
+  backgroundColor: string;
+  darkThemeEnabled: boolean;
+};
+
+const DEFAULT_THEME: ThemeState = {
+  progressColor: "#646cff",
+  textColor: "#333333",
+  buttonColor: "#646cff",
+  backgroundColor: "#ffffff",
+  darkThemeEnabled: false,
+};
 
 export default function App() {
   const [editingMinutes, setEditingMinutes] = useState<number>(0);
@@ -49,15 +66,18 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [coins, setCoins] = useState(0);
   const [coinAnimations, setCoinAnimations] = useState<{ id: number; amount: number }[]>([]);
-  const [nightMode, setNightMode] = useState(false);
-
-
-  const [theme, setTheme] = useState({
-    progressColor: "#646cff",
-    textColor: "#333",
-    buttonColor: "#646cff",
-    backgroundColor: "#fff"
+  const [theme, setTheme] = useState<ThemeState>(() => {
+    try {
+      const saved = localStorage.getItem(THEME_STORAGE_KEY);
+      if (!saved) return DEFAULT_THEME;
+      return { ...DEFAULT_THEME, ...JSON.parse(saved) };
+    } catch (err) {
+      console.error("Failed to parse cached theme:", err);
+      return DEFAULT_THEME;
+    }
   });
+  const [themeModeLoading, setThemeModeLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const CATEGORY_COLORS = [
     "#2563eb", // blue
@@ -80,7 +100,32 @@ export default function App() {
     LEGENDARY: 32,
   };
 
- const load = async () => {
+ const applyThemeToDocument = (themeData: ThemeState) => {
+    const root = document.documentElement;
+    root.style.setProperty("--bg-color", themeData.backgroundColor);
+    root.style.setProperty("--text-color", themeData.textColor);
+    root.style.setProperty("--button-color", themeData.buttonColor);
+    root.style.setProperty("--timer-bg", themeData.backgroundColor);
+    root.style.setProperty("--timer-text", themeData.textColor);
+    root.style.setProperty("--timer-button", themeData.buttonColor);
+
+    document.body.classList.toggle("night", themeData.darkThemeEnabled);
+  };
+
+  const normalizeTheme = (rawTheme: Partial<ThemeState>): ThemeState => ({
+    progressColor: rawTheme.progressColor || DEFAULT_THEME.progressColor,
+    textColor: rawTheme.textColor || DEFAULT_THEME.textColor,
+    buttonColor: rawTheme.buttonColor || DEFAULT_THEME.buttonColor,
+    backgroundColor: rawTheme.backgroundColor || DEFAULT_THEME.backgroundColor,
+    darkThemeEnabled: Boolean(rawTheme.darkThemeEnabled),
+  });
+
+  const showThemeError = (message: string, err: unknown) => {
+    console.error(message, err);
+    setErrorMessage(message);
+  };
+
+  const load = async () => {
     try {
       setLoading(true);
 
@@ -97,7 +142,7 @@ export default function App() {
       setStats(st.data);
       setCurrentSession(cs.data);
       setCoins(u.data.coins);
-      loadTheme();
+      await loadTheme();
 
     } catch (err) {
       console.error("Load failed:", err);
@@ -108,22 +153,16 @@ export default function App() {
 
 
   const loadTheme = async () => {
-  try {
-    const res = await axios.get(`${API}/user/theme`);
-    const themeData = res.data; // берём данные темы из ответа
-    setTheme(themeData);
-
-    // Устанавливаем переменную CSS для кнопок
-    if (themeData.buttonColor) {
-      document.documentElement.style.setProperty(
-        "--button-color",
-        themeData.buttonColor
-      );
+    try {
+      const res = await axios.get(`${API}/user/theme`);
+      const normalizedTheme = normalizeTheme(res.data);
+      setTheme(normalizedTheme);
+      applyThemeToDocument(normalizedTheme);
+    } catch (err) {
+      showThemeError("Failed to load theme settings", err);
+      applyThemeToDocument(theme);
     }
-  } catch (err) {
-    console.error("Failed to load theme:", err);
-  }
-};
+  };
 
 
   const deleteCategory = async (id: string) => {
@@ -361,7 +400,7 @@ useEffect(() => {
     return result;
   };
 
-  const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
+  const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       // фильтруем только категории с value > 0
       const filtered = payload.filter((p) => p.value && p.value > 0);
@@ -435,30 +474,30 @@ useEffect(() => {
   };
 
   const toggleNightMode = async () => {
-    const root = document.documentElement;
+    if (themeModeLoading) return;
 
-    const currentBg = getComputedStyle(root).getPropertyValue("--bg-color").trim();
-
-    if (currentBg === "#ffffff") {
-      root.style.setProperty("--bg-color", "#0f1115");
-      root.style.setProperty("--text-color", "#e6e6e6");
-
-      await axios.post(API + "/user/paint", {
-        target: "night"
+    const nextEnabled = !theme.darkThemeEnabled;
+    try {
+      setThemeModeLoading(true);
+      const res = await axios.post(`${API}/user/theme-mode`, {
+        enabled: nextEnabled,
       });
 
-    } else {
-      root.style.setProperty("--bg-color", "#ffffff");
-      root.style.setProperty("--text-color", "#000000");
-
-      await axios.post(API + "/user/paint", {
-        target: "reset"
+      const updatedTheme = normalizeTheme({
+        ...theme,
+        ...res.data,
+        darkThemeEnabled: res.data.darkThemeEnabled,
+        backgroundColor: res.data.backgroundColor ?? theme.backgroundColor,
+        textColor: res.data.textColor ?? theme.textColor,
       });
+
+      setTheme(updatedTheme);
+      applyThemeToDocument(updatedTheme);
+    } catch (err) {
+      showThemeError("Failed to switch theme mode", err);
+    } finally {
+      setThemeModeLoading(false);
     }
-
-    await loadTheme();
-
-    document.body.classList.toggle("night");
   };
 
   
@@ -470,10 +509,15 @@ useEffect(() => {
 
 
 useEffect(() => {
-  document.documentElement.style.setProperty("--timer-bg", theme.backgroundColor);
-  document.documentElement.style.setProperty("--timer-text", theme.textColor);
-  document.documentElement.style.setProperty("--timer-button", theme.buttonColor);
+  applyThemeToDocument(theme);
+  localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify(theme));
 }, [theme]);
+
+useEffect(() => {
+  if (!errorMessage) return;
+  const timer = setTimeout(() => setErrorMessage(""), 4000);
+  return () => clearTimeout(timer);
+}, [errorMessage]);
 
 
 
@@ -837,12 +881,7 @@ useEffect(() => {
               Clear Inventory DB
             </button>
 
-           <button
-            style={{ marginLeft: "1em" }}
-            onClick={() => toggleNightMode()}
-          >
-            🌑 Toggle Night Mode 
-          </button>
+            
 
             <button
               style={{ marginLeft: "1em" }}
@@ -858,6 +897,36 @@ useEffect(() => {
             >
               🎨 Reset Theme
             </button>
+
+            <label
+              style={{
+                marginLeft: "1em",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.6em",
+                padding: "6px 10px",
+                borderRadius: "8px",
+                background: theme.darkThemeEnabled ? "#1f232b" : "#f3f3f3",
+                color: theme.darkThemeEnabled ? "#e6e6e6" : "#222",
+                border: "1px solid rgba(0,0,0,0.1)",
+                cursor: themeModeLoading ? "not-allowed" : "pointer",
+                transition: "all 0.2s ease",
+                userSelect: "none"
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={theme.darkThemeEnabled}
+                disabled={themeModeLoading}
+                onChange={toggleNightMode}
+                style={{
+                  cursor: themeModeLoading ? "not-allowed" : "pointer",
+                  transform: "scale(1.1)"
+                }}
+              />
+
+              Dark theme {theme.darkThemeEnabled ? "🌑" : "☀️"}
+            </label>
 
           </>
         )}
@@ -882,6 +951,24 @@ useEffect(() => {
 
 
       </div>
+      {errorMessage && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: "20px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            background: "#d32f2f",
+            color: "#fff",
+            padding: "10px 16px",
+            borderRadius: "10px",
+            zIndex: 2000,
+            boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
+          }}
+        >
+          {errorMessage}
+        </div>
+      )}
   </div>
     );
 }
