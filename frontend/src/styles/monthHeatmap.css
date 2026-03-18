@@ -1,0 +1,135 @@
+.month-heatmap-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.month-heatmap-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 75px);
+  gap: 10px;
+  margin-top: 1em;
+}
+
+.month-heatmap-spacer {
+  width: 65px;
+  height: 65px;
+}
+
+.month-heatmap-cell {
+  --heatmap-cell-bg: #ebedf0;
+  --heatmap-cell-glow: rgba(100, 108, 255, 0.2);
+  --heatmap-cell-text: #1f2937;
+  --heatmap-today-ring: rgba(100, 108, 255, 0);
+
+  width: 70px;
+  height: 70px;
+  border-radius: 12px;
+  background: var(--heatmap-cell-bg);
+  color: var(--heatmap-cell-text);
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+
+  border: 1px solid color-mix(in srgb, var(--heatmap-cell-bg) 70%, #ffffff);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #ffffff 25%, transparent),
+    0 6px 14px color-mix(in srgb, var(--heatmap-cell-glow) 42%, transparent),
+    0 0 0 0 var(--heatmap-today-ring);
+
+  text-shadow: 0 1px 2px color-mix(in srgb, #000 28%, transparent);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.month-heatmap-cell--today {
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #ffffff 25%, transparent),
+    0 6px 14px color-mix(in srgb, var(--heatmap-cell-glow) 42%, transparent),
+    0 0 0 2px var(--heatmap-today-ring),
+    0 0 0 6px color-mix(in srgb, var(--heatmap-today-ring) 28%, transparent);
+  filter: contrast(1.04) saturate(1.08);
+}
+
+.month-heatmap-cell--today::after {
+  content: "";
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--heatmap-today-ring) 82%, #ffffff);
+  box-shadow: 0 0 0 2px color-mix(in srgb, #ffffff 55%, transparent);
+}
+
+.month-heatmap-cell:hover {
+  transform: translateY(-2px) scale(1.08);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #ffffff 35%, transparent),
+    0 10px 24px color-mix(in srgb, var(--heatmap-cell-glow) 72%, transparent);
+  filter: saturate(1.1);
+}
+
+.month-heatmap-cell:active {
+  transform: scale(0.97);
+}
+
+.month-heatmap-tooltip {
+  position: fixed;
+  min-width: 88px;
+  padding: 0.55em 0.7em;
+  border-radius: 10px;
+  pointer-events: none;
+  z-index: 1100;
+  white-space: nowrap;
+
+  color: #0f172a;
+  background: color-mix(in srgb, #ffffff 90%, var(--button-color));
+  border: 1px solid color-mix(in srgb, var(--button-color) 38%, #ffffff);
+  box-shadow:
+    0 10px 24px rgba(15, 23, 42, 0.18),
+    0 0 0 1px color-mix(in srgb, var(--button-color) 10%, transparent);
+}
+
+.month-heatmap-tooltip-day {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.month-heatmap-tooltip-hours {
+  font-size: 13px;
+  opacity: 0.92;
+}
+
+body.night .month-heatmap-cell {
+  border-color: color-mix(in srgb, var(--button-color) 30%, #0f1117);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 8px 18px color-mix(in srgb, var(--heatmap-cell-glow) 46%, transparent),
+    0 0 0 0 var(--heatmap-today-ring);
+}
+
+body.night .month-heatmap-cell--today::after {
+  background: color-mix(in srgb, var(--heatmap-today-ring) 80%, #dbeafe);
+  box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.65);
+}
+
+body.night .month-heatmap-cell:hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 12px 28px color-mix(in srgb, var(--heatmap-cell-glow) 82%, transparent);
+}
+
+body.night .month-heatmap-tooltip {
+  color: #e5e7eb;
+  background: color-mix(in srgb, #111827 82%, var(--button-color));
+  border: 1px solid color-mix(in srgb, var(--button-color) 55%, #0b1020);
+  box-shadow:
+    0 14px 30px rgba(0, 0, 0, 0.55),
+    0 0 0 1px color-mix(in srgb, var(--button-color) 26%, transparent);
+}
