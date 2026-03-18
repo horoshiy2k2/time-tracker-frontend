@@ -6,7 +6,7 @@ interface Props {
 }
 
 function getLapColor(progressColor: string, lap: number): string {
-  if (lap <= 0) {
+  if (lap === 0) {
     return progressColor;
   }
 
@@ -19,7 +19,7 @@ function getLapColor(progressColor: string, lap: number): string {
 
 export default function HourProgressCircle({ seconds, progressColor }: Props) {
   const radius = 120;
-  const stroke = 20;
+  const stroke = 22;
   const normalizedRadius = radius - stroke / 2;
   const circumference = normalizedRadius * 2 * Math.PI;
 
@@ -27,17 +27,15 @@ export default function HourProgressCircle({ seconds, progressColor }: Props) {
   const completedLaps = Math.floor(totalProgress);
   const currentLapProgress = totalProgress - completedLaps;
 
-  const activeLapColor = getLapColor(progressColor, completedLaps);
-  const completedLapColor =
-    completedLaps > 0 ? getLapColor(progressColor, completedLaps - 1) : "#eee";
-
-  const strokeDashoffset = circumference - currentLapProgress * circumference;
-  const activeStrokeWidth = stroke + (completedLaps % 2 === 1 ? 0.8 : 0);
+  const visibleLaps = Math.max(
+    currentLapProgress === 0 ? completedLaps : completedLaps + 1,
+    1,
+  );
 
   return (
     <svg height={radius * 2} width={radius * 2}>
       <circle
-        stroke={completedLapColor}
+        stroke="#eee"
         fill="transparent"
         strokeWidth={stroke}
         r={normalizedRadius}
@@ -45,20 +43,30 @@ export default function HourProgressCircle({ seconds, progressColor }: Props) {
         cy={radius}
       />
 
-      {currentLapProgress > 0 && (
-        <circle
-          stroke={activeLapColor}
-          fill="transparent"
-          strokeWidth={activeStrokeWidth}
-          strokeDasharray={`${circumference} ${circumference}`}
-          strokeDashoffset={strokeDashoffset}
-          strokeLinecap="round"
-          r={normalizedRadius}
-          cx={radius}
-          cy={radius}
-          transform={`rotate(-90 ${radius} ${radius})`}
-        />
-      )}
+      {Array.from({ length: visibleLaps }, (_, lap) => {
+        const lapProgress = lap < completedLaps ? 1 : currentLapProgress;
+        const strokeDashoffset = circumference - lapProgress * circumference;
+
+        if (lapProgress <= 0) {
+          return null;
+        }
+
+        return (
+          <circle
+            key={lap}
+            stroke={getLapColor(progressColor, lap)}
+            fill="transparent"
+            strokeWidth={stroke}
+            strokeDasharray={`${circumference} ${circumference}`}
+            strokeDashoffset={strokeDashoffset}
+            strokeLinecap={lapProgress === 1 ? "butt" : "round"}
+            r={normalizedRadius}
+            cx={radius}
+            cy={radius}
+            transform={`rotate(-90 ${radius} ${radius})`}
+          />
+        );
+      })}
 
       <text
         x="50%"
