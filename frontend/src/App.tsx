@@ -303,18 +303,30 @@ useEffect(() => {
     const today = new Date();
 
     sessions.forEach((s) => {
-      const date = new Date(s.startTime);
+      const sessionStart = new Date(s.startTime);
+      const sessionEnd = new Date(sessionStart.getTime() + s.durationSec * 1000);
+      const cat = s.category?.name || "No category";
 
-      if (
-        date.getDate() === today.getDate() &&
-        date.getMonth() === today.getMonth() &&
-        date.getFullYear() === today.getFullYear()
-      ) {
-        const hour = date.getHours();
-        const cat = s.category?.name || "No category";
+      for (let hour = 0; hour < 24; hour++) {
+        const hourStart = new Date(today);
+        hourStart.setHours(hour, 0, 0, 0);
+        const hourEnd = new Date(hourStart);
+        hourEnd.setHours(hour + 1, 0, 0, 0);
 
-        hours[hour][cat] += Math.round((s.durationSec / 3600) * 100) / 100;
+        const overlapMs =
+          Math.min(sessionEnd.getTime(), hourEnd.getTime()) -
+          Math.max(sessionStart.getTime(), hourStart.getTime());
+
+        if (overlapMs > 0) {
+          hours[hour][cat] += overlapMs / (1000 * 60 * 60);
+        }
       }
+    });
+
+    hours.forEach((hourData) => {
+      Object.keys(categoryColorMap).forEach((cat) => {
+        hourData[cat] = Math.round(hourData[cat] * 100) / 100;
+      });
     });
 
     return hours;
@@ -894,4 +906,3 @@ function NavButton({ children, onClick, active }: any) {
     </button>
   );
 }
-
