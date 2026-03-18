@@ -161,7 +161,7 @@ export default function MixColorPopup({
     <>
       <div className="lootOverlay" onClick={onClose}>
 
-        <div className="lootCard" onClick={e => e.stopPropagation()}>
+        <div className="lootCard" style={{padding: '10px'}} onClick={e => e.stopPropagation()}>
 
           <h2>Available Color Drops</h2>
 
@@ -181,7 +181,12 @@ export default function MixColorPopup({
                   onClick={() => toggleDrop(drop)}
                 >
 
-                  {renderEmoji(drop)}
+                  {renderEmoji(drop)} 
+                  <div className="mixRgbValues">
+                    <span>{drop.r ? "R: " + drop.r:''}</span>
+                    <span>{drop.g ? "G: " + drop.g:''}</span>
+                    <span>{drop.b ? "B: " + drop.b:''}</span>
+                  </div>
 
                 </div>
 
@@ -213,9 +218,9 @@ export default function MixColorPopup({
                           {renderEmoji(drop)}
 
                           <div className="mixRgbValues">
-                            <span>R: {drop.r || 0}</span>
-                            <span>G: {drop.g || 0}</span>
-                            <span>B: {drop.b || 0}</span>
+                            <span>{drop.r ? "R: " + drop.r:''}</span>
+                            <span>{drop.g ? "G: " + drop.g:''}</span>
+                            <span>{drop.b ? "B: " + drop.b:''}</span>
                           </div>
                         </>
                       ) : (
@@ -273,56 +278,6 @@ export default function MixColorPopup({
         </div>
 
       </div>
-
-
-      {/*{newColor && (
-        <div
-          className="lootOverlay"
-          onClick={() => setNewColor(null)}
-          style={{
-            position: "fixed",
-            inset: 0,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            background: "rgba(0,0,0,0.25)",
-            zIndex: 9999, // точно выше всех
-          }}
-        >
-          <div
-            className="lootCard"
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              maxWidth: "400px",
-              textAlign: "center",
-              padding: "30px",
-            }}
-          >
-            <h2>New Color Created!</h2>
-
-            <div
-              className={`mixItem ${newColor.rarity.toLowerCase()}`}
-              style={{ margin: "0 auto", width: 120, height: 120 }}
-            >
-              <div
-                className="mixColorBlock"
-                style={{
-                  width: 80,
-                  height: 80,
-                  backgroundColor: `rgb(${newColor.r},${newColor.g},${newColor.b})`,
-                }}
-              />
-            </div>
-
-            <div
-              className="lootRarity"
-              style={{ marginTop: "8px", fontWeight: 700 }}
-            >
-              {newColor.rarity.toUpperCase()} - Cost: {newColor.cost}
-            </div>
-          </div>
-        </div>
-      )}*/}
 
     </>
 
