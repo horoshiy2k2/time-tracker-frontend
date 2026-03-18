@@ -881,17 +881,9 @@ function NavButton({ children, onClick, active }: any) {
   return (
     <button
       onClick={onClick}
-      className="menu-button"
-      style={{
-        background: active ? "#646cff" : "#f3f3f3",
-        color: active ? "#fff" : "#333",
-        boxShadow: active
-          ? "0 8px 20px rgba(100,108,255,0.35)"
-          : "0 4px 10px rgba(0,0,0,0.05)",
-      }}
+      className={`menu-button ${active ? "active" : ""}`}
     >
       {children}
     </button>
   );
 }
-
