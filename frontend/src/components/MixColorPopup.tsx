@@ -120,6 +120,18 @@ export default function MixColorPopup({
   };
 
   const previewColorName = getClosestColorName(previewColor);
+  const previewPaintAmount = previewColor.r + previewColor.g + previewColor.b;
+
+  const getRarityByPaintAmount = (paintAmount: number): Rarity => {
+    if (paintAmount <= 153) return Rarity.COMMON;
+    if (paintAmount <= 306) return Rarity.UNCOMMON;
+    if (paintAmount <= 459) return Rarity.RARE;
+    if (paintAmount <= 612) return Rarity.EPIC;
+    return Rarity.LEGENDARY;
+  };
+
+  const previewRarity = getRarityByPaintAmount(previewPaintAmount);
+  const previewRarityClass = previewRarity.toLowerCase();
 
   const renderEmoji = (item:any)=>{
 
@@ -192,7 +204,7 @@ export default function MixColorPopup({
 
                     <div
                       key={i}
-                      className={`mixItem mixSlotItem ${drop?.rarity?.toLowerCase() || ""}`}
+                      className={`mixItem mixSlotItem ${drop?.rarity?.toLowerCase() || ""} ${drop ? "" : "mixSlotItemEmpty"}`}
                       onClick={() => drop && toggleDrop(drop)}
                     >
 
@@ -225,18 +237,21 @@ export default function MixColorPopup({
 
                 <div className="mixPreview">
 
-                  <div
-                    className="mixColorBlock"
-                    style={{
-                      backgroundColor:`rgb(${previewColor.r},${previewColor.g},${previewColor.b})`
-                    }}
-                  />
+                  <div className={`mixItem mixPreviewCard ${previewRarityClass}`}>
+                    <div
+                      className="mixColorBlock"
+                      style={{
+                        backgroundColor:`rgb(${previewColor.r},${previewColor.g},${previewColor.b})`
+                      }}
+                    />
 
-                  <div className="mixPreviewInfo">
-                    <span>R: {previewColor.r}</span>
-                    <span>G: {previewColor.g}</span>
-                    <span>B: {previewColor.b}</span>
-                    <span>Name: {previewColorName}</span>
+                    <div className="mixPreviewInfo">
+                      <span>R: {previewColor.r}</span>
+                      <span>G: {previewColor.g}</span>
+                      <span>B: {previewColor.b}</span>
+                      <span>Name: {previewColorName}</span>
+                      <span>Rarity: {previewRarity}</span>
+                    </div>
                   </div>
 
                 </div>
