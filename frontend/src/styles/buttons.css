@@ -59,6 +59,12 @@
   transition: all 0.18s ease-in-out;
   user-select: none;
 
+  background: color-mix(in srgb, var(--button-color) 12%, #f3f3f3);
+  color: #333;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.menu-button.active {
   background: var(--button-color);
   color: #fff;
   box-shadow: 0 6px 15px color-mix(in srgb, var(--button-color) 20%, transparent);
@@ -66,27 +72,55 @@
 
 .menu-button:hover {
   transform: translateY(-2px);
+}
+
+.menu-button.active:hover {
   box-shadow: 0 8px 20px color-mix(in srgb, var(--button-color) 30%, transparent);
+}
+
+.menu-button:not(.active):hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
 .menu-button:active {
   transform: scale(0.94);
+}
+
+.menu-button.active:active {
   box-shadow: 0 4px 10px color-mix(in srgb, var(--button-color) 40%, transparent);
   filter: brightness(0.9);
+}
+
+.menu-button:not(.active):active {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
 
 /* NIGHT MODE */
 body.night .menu-button {
   background: #1f232b;
   color: #e6e6e6;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+body.night .menu-button.active {
+  background: var(--button-color);
+  color: #fff;
   box-shadow: 0 4px 10px color-mix(in srgb, var(--button-color) 20%, transparent);
 }
 
 body.night .menu-button:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+}
+
+body.night .menu-button.active:hover {
   box-shadow: 0 4px 10px color-mix(in srgb, var(--button-color) 30%, transparent);
 }
 
 body.night .menu-button:active {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+body.night .menu-button.active:active {
   box-shadow: 0 4px 10px color-mix(in srgb, var(--button-color) 40%, transparent);
 }
 
@@ -99,14 +133,21 @@ body.night .menu-button:active {
   border: none;
   cursor: pointer;
   font-weight: 600;
-  background: var(--button-color);
-  color: #fff;
-  box-shadow: 0 6px 15px color-mix(in srgb, var(--button-color) 30%, transparent);
+  background: color-mix(in srgb, var(--button-color) 12%, #f3f3f3);
+  color: #333;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
   transition: all 0.2s ease;
 }
 
 .stat-button:hover {
   transform: translateY(-2px);
+}
+
+.stat-button:not(.active):hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.stat-button.active:hover {
   box-shadow: 0 8px 20px color-mix(in srgb, var(--button-color) 40%, transparent);
 }
 
