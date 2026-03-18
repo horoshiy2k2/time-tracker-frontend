@@ -32,6 +32,7 @@ export default function HourProgressCircle({ seconds, progressColor }: Props) {
     completedLaps > 0 ? getLapColor(progressColor, completedLaps - 1) : "#eee";
 
   const strokeDashoffset = circumference - currentLapProgress * circumference;
+  const activeStrokeWidth = stroke + (completedLaps % 2 === 1 ? 0.8 : 0);
 
   return (
     <svg height={radius * 2} width={radius * 2}>
@@ -48,7 +49,7 @@ export default function HourProgressCircle({ seconds, progressColor }: Props) {
         <circle
           stroke={activeLapColor}
           fill="transparent"
-          strokeWidth={stroke}
+          strokeWidth={activeStrokeWidth}
           strokeDasharray={`${circumference} ${circumference}`}
           strokeDashoffset={strokeDashoffset}
           strokeLinecap="round"
