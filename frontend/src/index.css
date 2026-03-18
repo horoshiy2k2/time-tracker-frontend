@@ -227,33 +227,42 @@ body.night .sessionDate{
 .sessionSelect,
 .timerCategorySelect{
   --select-accent: var(--button-color);
+  --select-tint: color-mix(in srgb, var(--select-accent) 16%, #ffffff);
+  --select-border: color-mix(in srgb, var(--select-accent) 34%, #d7deea);
   position: relative;
-  width: 260px;
-  margin: .5em 0 1em;
+  width: 200px;
 }
 
-.sessionSelect{ width:200px; margin:.5em 0; }
+.timerCategorySelect{ margin: 0 0 1em; }
+.sessionSelect{ margin: .5em 0; }
 
 .fancySelectTrigger{
   width:100%;
+  min-height: 43px;
   margin:0;
-  padding:.72em .9em;
-  border-radius:14px;
-  border:1px solid color-mix(in srgb, var(--select-accent) 50%, #cfd5e6);
-  background: color-mix(in srgb, var(--select-accent) 8%, #fff);
-  color:#1f2937;
+  padding:.6em 1em;
+  border-radius:12px;
+  border:1px solid var(--select-border);
+  background:var(--select-tint);
+  color:#2b3342;
   display:flex;
   align-items:center;
   justify-content:space-between;
   font-weight:600;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--select-accent) 10%, transparent);
+}
+
+.fancySelectTrigger:hover{
+  border-color: color-mix(in srgb, var(--select-accent) 45%, #d7deea);
+  background: color-mix(in srgb, var(--select-accent) 20%, #ffffff);
 }
 
 .fancySelectTrigger:focus-visible{
   outline:none;
-  box-shadow:0 0 0 4px color-mix(in srgb, var(--select-accent) 22%, transparent);
+  box-shadow:0 0 0 3px color-mix(in srgb, var(--select-accent) 20%, transparent);
 }
 
-.caret{ color:var(--select-accent); transition:transform .18s; }
+.caret{ color:color-mix(in srgb, var(--select-accent) 70%, #7b879c); transition:transform .18s; }
 .caret.open{ transform:rotate(180deg); }
 
 .fancySelectMenu{
@@ -266,17 +275,17 @@ body.night .sessionDate{
   flex-direction:column;
   gap:4px;
   padding:6px;
-  border-radius:14px;
-  border:1px solid color-mix(in srgb, var(--select-accent) 45%, #cfd5e6);
-  background:#fff;
-  box-shadow:0 14px 28px color-mix(in srgb, var(--select-accent) 22%, transparent);
+  border-radius:12px;
+  border:1px solid color-mix(in srgb, var(--select-accent) 26%, #d7deea);
+  background:#ffffff;
+  box-shadow:0 14px 30px color-mix(in srgb, var(--select-accent) 16%, transparent);
 }
 
 .fancySelectOption{
   margin:0;
   border:none;
-  border-radius:10px;
-  padding:.6em .7em;
+  border-radius:9px;
+  padding:.58em .7em;
   text-align:left;
   background:transparent;
   color:#111827;
@@ -284,7 +293,7 @@ body.night .sessionDate{
 
 .fancySelectOption:hover,
 .fancySelectOption.active{
-  background:color-mix(in srgb, var(--select-accent) 16%, transparent);
+  background:color-mix(in srgb, var(--select-accent) 14%, #ffffff);
 }
 
 /* NIGHT MODE INPUTS */
@@ -298,17 +307,27 @@ body.night .sessionInputMedium{
 
 body.night .fancySelectTrigger{
   color:#e6e6e6;
-  border-color: color-mix(in srgb, var(--select-accent) 46%, #2f3747);
-  background: color-mix(in srgb, var(--select-accent) 10%, #161b24);
+  border-color: color-mix(in srgb, var(--select-accent) 36%, #3a4354);
+  background: color-mix(in srgb, var(--select-accent) 8%, #1a202b);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--select-accent) 14%, transparent);
+}
+
+body.night .fancySelectTrigger:hover{
+  background: color-mix(in srgb, var(--select-accent) 12%, #1a202b);
 }
 
 body.night .fancySelectMenu{
-  background:#151b26;
-  border-color: color-mix(in srgb, var(--select-accent) 44%, #2f3747);
+  background:#171d28;
+  border-color: color-mix(in srgb, var(--select-accent) 36%, #3a4354);
 }
 
 body.night .fancySelectOption{
   color:#e6e6e6;
+}
+
+body.night .fancySelectOption:hover,
+body.night .fancySelectOption.active{
+  background:color-mix(in srgb, var(--select-accent) 20%, transparent);
 }
 
 
