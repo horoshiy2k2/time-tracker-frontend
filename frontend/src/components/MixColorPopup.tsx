@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import "../styles/mixColorPopup.css";
+import { getClosestColorName } from "../utils/colorNames";
 
 export enum Rarity {
   COMMON = "COMMON",
@@ -118,6 +119,8 @@ export default function MixColorPopup({
     }
   };
 
+  const previewColorName = getClosestColorName(previewColor);
+
   const renderEmoji = (item:any)=>{
 
     if(item.type === ItemType.CHEST){
@@ -189,11 +192,23 @@ export default function MixColorPopup({
 
                     <div
                       key={i}
-                      className={`mixItem ${drop?.rarity?.toLowerCase() || ""}`}
+                      className={`mixItem mixSlotItem ${drop?.rarity?.toLowerCase() || ""}`}
                       onClick={() => drop && toggleDrop(drop)}
                     >
 
-                      {drop ? renderEmoji(drop) : "+"}
+                      {drop ? (
+                        <>
+                          {renderEmoji(drop)}
+
+                          <div className="mixRgbValues">
+                            <span>R: {drop.r || 0}</span>
+                            <span>G: {drop.g || 0}</span>
+                            <span>B: {drop.b || 0}</span>
+                          </div>
+                        </>
+                      ) : (
+                        "+"
+                      )}
 
                     </div>
 
@@ -216,6 +231,13 @@ export default function MixColorPopup({
                       backgroundColor:`rgb(${previewColor.r},${previewColor.g},${previewColor.b})`
                     }}
                   />
+
+                  <div className="mixPreviewInfo">
+                    <span>R: {previewColor.r}</span>
+                    <span>G: {previewColor.g}</span>
+                    <span>B: {previewColor.b}</span>
+                    <span>Name: {previewColorName}</span>
+                  </div>
 
                 </div>
 

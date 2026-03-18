@@ -99,10 +99,13 @@ height:80px;
 .mixPreview{
 
 display:flex;
+flex-direction:column;
 
 justify-content:center;
+align-items:center;
 
 margin-top:18px;
+gap:10px;
 
 }
 
@@ -198,11 +201,32 @@ gap:20px;
 
 /* уменьшаем размер иконок в слотах */
 .mixSlots .mixItem {
-  width: 70px;
-  height: 70px;
+  width: 88px;
+  min-height: 120px;
 }
 
 .mixSlots .mixDropIcon {
-  width: 60px;
-  height: 60px;
+  width: 44px;
+  height: 44px;
+}
+
+.mixSlotItem {
+  gap: 8px;
+  padding: 8px;
+}
+
+.mixRgbValues {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.mixPreviewInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+  text-align: center;
 }
