@@ -133,14 +133,21 @@ body.night .menu-button.active:active {
   border: none;
   cursor: pointer;
   font-weight: 600;
-  background: var(--button-color);
-  color: #fff;
-  box-shadow: 0 6px 15px color-mix(in srgb, var(--button-color) 30%, transparent);
+  background: color-mix(in srgb, var(--button-color) 12%, #f3f3f3);
+  color: #333;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
   transition: all 0.2s ease;
 }
 
 .stat-button:hover {
   transform: translateY(-2px);
+}
+
+.stat-button:not(.active):hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.stat-button.active:hover {
   box-shadow: 0 8px 20px color-mix(in srgb, var(--button-color) 40%, transparent);
 }
 
