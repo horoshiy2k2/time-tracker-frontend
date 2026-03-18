@@ -225,17 +225,19 @@ body.night .sessionDate{
 }
 
 .sessionSelect{
-  padding:0.5em;
-  border-radius:8px;
   width:200px;
-  border:1px solid #ccc;
+  margin: 0.5em 0;
+}
+
+.timerCategorySelect{
+  width: 260px;
+  margin-bottom: 1em;
 }
 
 /* NIGHT MODE INPUTS */
 
 body.night .sessionInputSmall,
-body.night .sessionInputMedium,
-body.night .sessionSelect{
+body.night .sessionInputMedium{
   background:#161a22;
   border:1px solid #333;
   color:#e6e6e6;

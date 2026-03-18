@@ -5,6 +5,7 @@ import CoinAnimation from "./components/CoinAnimation";
 import MonthHeatmap from "./components/MonthHeatmap";
 import Inventory from "./components/Inventory";
 import Shop from "./components/Shop";
+import ThemedSelect from "./components/ThemedSelect";
 
 import "./styles/buttons.css";
 import {
@@ -523,27 +524,19 @@ useEffect(() => {
                 {!currentSession ? "Start" : "Stop"}
               </button>
 
-              <select
+              <ThemedSelect
                 value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                disabled={!!currentSession} // блокируем, если есть currentSession
-                style={{
-                  padding: "0.6em 1em",
-                  borderRadius: "12px",
-                  border: "1px solid #ccc",
-                  fontSize: "1em",
-                  marginBottom: "1em",
-                  minWidth: "200px",
-                  cursor: currentSession ? "not-allowed" : "pointer",
-                }}
-              >
-                {categories.length === 0 && <option value="no-category">No category</option>}
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+                onChange={setSelectedCategory}
+                disabled={!!currentSession}
+                accentColor={theme.buttonColor}
+                isNightMode={nightMode}
+                className="timerCategorySelect"
+                options={
+                  categories.length === 0
+                    ? [{ value: "no-category", label: "No category" }]
+                    : categories.map((c) => ({ value: c.id, label: c.name }))
+                }
+              />
 
             </div>
           </>
@@ -634,20 +627,19 @@ useEffect(() => {
 
                     {/* Категория */}
                     <div style={{ marginTop: "0.8em", marginBottom: "0.5em" }}>Category:</div>
-                    <select
+                    <ThemedSelect
                       value={editingCategoryId || ""}
-                      onChange={(e) =>
-                        setEditingCategoryId(e.target.value ? e.target.value : null)
+                      onChange={(value) =>
+                        setEditingCategoryId(value ? value : null)
                       }
+                      accentColor={theme.buttonColor}
+                      isNightMode={nightMode}
                       className="sessionSelect"
-                    >
-                      <option value="">No category</option>
-                      {categories.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name}
-                        </option>
-                      ))}
-                    </select>
+                      options={[
+                        { value: "", label: "No category" },
+                        ...categories.map((c) => ({ value: c.id, label: c.name })),
+                      ]}
+                    />
 
                     {/* Дата */}
                     <div style={{ marginTop: "0.8em", marginBottom: "0.5em" }}>Date:</div>
