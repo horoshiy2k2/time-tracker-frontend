@@ -2,12 +2,21 @@
   --bg-color: #ffffff;
   --text-color: #000000;
   --button-color: #646cff;
+  --stable-text-color: #222222;
 
   /* TIMER THEME */
 
   --timer-bg: #ffffff;
   --timer-text: #000000;
   --timer-button: #646cff;
+}
+
+.stable-text-page{
+  color: var(--stable-text-color);
+}
+
+body.night .stable-text-page{
+  color: #e6e6e6;
 }
 
 /* общий фон приложения */
