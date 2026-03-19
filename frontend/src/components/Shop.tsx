@@ -16,7 +16,17 @@ const CHEST_COST: Record<string, number> = {
   LEGENDARY: 200,
 };
 
-export default function Shop({ buyChest }: any) {
+type ShopProps = {
+  buyChest: (rarity: string) => Promise<number | string>;
+  buyCoinBoostNextSession: () => Promise<number | string>;
+  buyCoinBoostTimed: () => Promise<number | string>;
+};
+
+export default function Shop({
+  buyChest,
+  buyCoinBoostNextSession,
+  buyCoinBoostTimed,
+}: ShopProps) {
 
   const [notifications, setNotifications] = useState<any[]>([]);
   const [coinAnimAmount, setCoinAnimAmount] = useState<number | null>(null);
@@ -41,6 +51,25 @@ export default function Shop({ buyChest }: any) {
     { rarity: "LEGENDARY", name: "Legendary Chest", class: "legendary" },
   ];
 
+  const boosts = [
+    {
+      key: "coin-next-session",
+      name: "Coin boost 1 session",
+      emoji: "🪙",
+      className: "boost",
+      handleBuy: buyCoinBoostNextSession,
+      successText: "Coin boost for next session purchased",
+    },
+    {
+      key: "coin-timed",
+      name: "Coin boost 1-5h",
+      emoji: "⏳",
+      className: "boost legendary",
+      handleBuy: buyCoinBoostTimed,
+      successText: "Timed coin boost purchased",
+    },
+  ];
+
   const handleBuy = async (rarity: string) => {
     const result = await buyChest(rarity);
 
@@ -57,6 +86,22 @@ export default function Shop({ buyChest }: any) {
       addNotification('Not enough 🪙');
       playErrorBlipSound();
     }
+  };
+
+  const handleBuyBoost = async (
+    buyFn: () => Promise<number | string>,
+    successText: string,
+  ) => {
+    const result = await buyFn();
+
+    if (result === 200) {
+      addNotification(successText);
+      playBuySound();
+      return;
+    }
+
+    addNotification("Not enough 🪙");
+    playErrorBlipSound();
   };
 
   return (
@@ -76,6 +121,20 @@ export default function Shop({ buyChest }: any) {
             <div className="shopEmoji">📦</div>
             <div className="shopName">{c.name}</div>
             <div className="shopCost">{CHEST_COST[c.rarity]} 🪙</div>
+          </div>
+        ))}
+        {boosts.map((boost) => (
+          <div
+            key={boost.key}
+            className={`shopItem ${boost.className}`}
+            onClick={() => {
+              playUiTabClickSound();
+              void handleBuyBoost(boost.handleBuy, boost.successText);
+            }}
+            onMouseEnter={playHoverItemSound}
+          >
+            <div className="shopEmoji">{boost.emoji}</div>
+            <div className="shopName">{boost.name}</div>
           </div>
         ))}
       </div>

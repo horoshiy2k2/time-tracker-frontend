@@ -1,8 +1,45 @@
 .inventoryContainer{
   display:flex;
+  flex-wrap: wrap;
   gap:20px;
   align-items:flex-start;
   user-select: none;
+}
+
+.buffBar {
+  width: 100%;
+  display: flex;
+  overflow-x: auto;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.buffBarEmpty {
+  opacity: 0.6;
+  font-size: 0.95em;
+}
+
+.buffBadge {
+  border: 1px solid rgba(240, 173, 52, 0.4);
+  background: rgba(255, 237, 200, 0.75);
+  color: #7a4c00;
+  border-radius: 999px;
+  padding: 6px 12px;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.legendaryBuff {
+  border-color: rgba(255, 160, 0, 0.6);
+  box-shadow: 0 0 16px rgba(255, 190, 50, 0.35);
+}
+
+.legendaryTag {
+  margin-left: 8px;
+  background: rgba(255, 145, 0, 0.16);
+  border: 1px solid rgba(255, 145, 0, 0.5);
+  border-radius: 8px;
+  padding: 1px 6px;
 }
 
 .inventoryGrid{
@@ -354,6 +391,11 @@ background:#eaeaea;
 body.night .inventoryDetail{
   background:#1b1f27;
   border:1px solid #2a2f3a;
+}
+
+body.night .buffBadge {
+  background: rgba(255, 196, 80, 0.15);
+  color: #ffdca3;
 }
 
 body.night .inventoryItem{
