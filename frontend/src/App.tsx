@@ -594,7 +594,7 @@ useEffect(() => {
         )}
 
         {page === "statistic" && (
-          <>
+          <div className="stable-text-page">
           <div style={{ marginTop: "1em", marginBottom: "2em", display: "flex", justifyContent: "center" }}>
             <button
               className={`stat-button ${statView === "day" ? "active" : ""}`}
@@ -796,12 +796,12 @@ useEffect(() => {
                 )}
               </div>
             ))}
-          </>
+          </div>
         )}
 
 
         {page === "settings" && (
-          <>
+          <div className="stable-text-page">
             <h2>Manage Categories</h2>
             <input
               className="categoryInput"
@@ -928,7 +928,7 @@ useEffect(() => {
               Dark theme {theme.darkThemeEnabled ? "🌑" : "☀️"}
             </label>
 
-          </>
+          </div>
         )}
 
 
@@ -947,7 +947,11 @@ useEffect(() => {
           {coins}🪙
         </div>
 
-        {page === "inventory" && <Inventory updateAll={updateAll}/>}
+        {page === "inventory" && (
+          <div className="stable-text-page">
+            <Inventory updateAll={updateAll}/>
+          </div>
+        )}
 
 
       </div>
