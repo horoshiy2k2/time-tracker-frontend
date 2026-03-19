@@ -21,8 +21,6 @@ import {
 import "./styles/shop.css";
 import {
   playSessionCoinsSound,
-  playTimerStartSound,
-  playTimerStopSound,
   playUiTabClickSound,
 } from "./utils/soundEffects";
 
@@ -247,7 +245,7 @@ useEffect(() => {
       categoryId: selectedCategory,
     });
 
-    playTimerStartSound();
+    playUiTabClickSound();
 
     const cs = await axios.get(API + "/current-session");
     setCurrentSession(cs.data);
@@ -266,7 +264,7 @@ useEffect(() => {
       playSessionCoinsSound();
     }
 
-    playTimerStopSound();
+    playUiTabClickSound();
 
     setCurrentSession(null);
     setElapsedSeconds(0);
@@ -540,6 +538,11 @@ useEffect(() => {
     setPage(nextPage);
   };
 
+  const handleStatViewChange = (nextView: "day" | "week" | "month") => {
+    playUiTabClickSound();
+    setStatView(nextView);
+  };
+
   return (
     <div style={{ maxWidth: "800px", margin: "2em auto", padding: "2em", background: "var(--bg-color)", borderRadius: "16px", boxShadow: "0 2px 12px rgba(0,0,0,0.1)" }}>
       <div>
@@ -611,7 +614,7 @@ useEffect(() => {
           <div style={{ marginTop: "1em", marginBottom: "2em", display: "flex", justifyContent: "center" }}>
             <button
               className={`stat-button ${statView === "day" ? "active" : ""}`}
-              onClick={() => setStatView("day")}
+              onClick={() => handleStatViewChange("day")}
             >
               Day
             </button>
@@ -619,7 +622,7 @@ useEffect(() => {
             <button
               className={`stat-button ${statView === "week" ? "active" : ""}`}
               style={{ marginLeft: 8 }}
-              onClick={() => setStatView("week")}
+              onClick={() => handleStatViewChange("week")}
             >
               Week
             </button>
@@ -627,7 +630,7 @@ useEffect(() => {
             <button
               className={`stat-button ${statView === "month" ? "active" : ""}`}
               style={{ marginLeft: 8 }}
-              onClick={() => setStatView("month")}
+              onClick={() => handleStatViewChange("month")}
             >
               Month
             </button>

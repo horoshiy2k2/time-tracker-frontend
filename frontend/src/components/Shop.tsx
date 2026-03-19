@@ -1,7 +1,12 @@
 import { useState } from "react";
 import "../styles/shop.css";
 import CoinAnimation from "./CoinAnimation";
-import { playBuySound, playErrorBlipSound, playHoverItemSound } from "../utils/soundEffects";
+import {
+  playBuySound,
+  playErrorBlipSound,
+  playHoverItemSound,
+  playUiTabClickSound,
+} from "../utils/soundEffects";
 
 const CHEST_COST: Record<string, number> = {
   COMMON: 10,
@@ -62,7 +67,10 @@ export default function Shop({ buyChest }: any) {
           <div
             key={c.rarity}
             className={`shopItem ${c.class}`}
-            onClick={() => handleBuy(c.rarity)}
+            onClick={() => {
+              playUiTabClickSound();
+              handleBuy(c.rarity);
+            }}
             onMouseEnter={playHoverItemSound}
           >
             <div className="shopEmoji">📦</div>

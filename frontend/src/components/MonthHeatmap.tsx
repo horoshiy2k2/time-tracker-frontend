@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "../styles/monthHeatmap.css";
+import { playHoverItemSound } from "../utils/soundEffects";
 
 interface Props {
   sessions: any[];
@@ -127,14 +128,15 @@ const MonthHeatmap: React.FC<Props> = ({ sessions }) => {
                 "--heatmap-cell-text": textColor,
                 "--heatmap-today-ring": `rgba(${buttonColorRgb.r}, ${buttonColorRgb.g}, ${buttonColorRgb.b}, ${isToday ? (isNightMode ? 0.95 : 0.9) : 0})`,
               } as React.CSSProperties}
-              onMouseEnter={(e) =>
+              onMouseEnter={(e) => {
+                playHoverItemSound();
                 setHover({
                   day: d.day,
                   hours: d.hours,
                   x: e.clientX,
                   y: e.clientY,
-                })
-              }
+                });
+              }}
               onMouseMove={(e) =>
                 setHover((prev) =>
                   prev ? { ...prev, x: e.clientX, y: e.clientY } : null

@@ -9,6 +9,7 @@ import {
   playPaintApplySound,
   playRewardFlipSound,
   playSellSound,
+  playUiTabClickSound,
 } from "../utils/soundEffects";
 
 const API = import.meta.env.VITE_API_URL;
@@ -148,7 +149,7 @@ export default function Inventory({updateAll}: any) {
 
       const sellValue = Math.floor(item.cost * 0.5);
       try {
-        await sellItem(item, false); // sellItem уже обновляет инвентарь и показывает анимацию
+        await sellItem(item, true); // звук играет на каждую продажу
         totalCoins += sellValue;
       } catch (err: any) {
         console.error("Failed to sell item", item.id, err);
@@ -158,7 +159,6 @@ export default function Inventory({updateAll}: any) {
     // Показываем суммарную анимацию монет
     if (totalCoins > 0) {
       setCoinAnimAmount(totalCoins);
-      playSellSound();
     }
 
     // Перезагружаем инвентарь
@@ -242,7 +242,10 @@ export default function Inventory({updateAll}: any) {
             className={`inventoryItem ${item.rarity?.toLowerCase() || ""} ${
               selected?.id === item.id ? "selected" : ""
             }`}
-            onClick={()=>setSelected(item)}
+            onClick={()=>{
+              playUiTabClickSound();
+              setSelected(item);
+            }}
             onMouseEnter={playHoverItemSound}
           >
 
@@ -438,6 +441,7 @@ export default function Inventory({updateAll}: any) {
             className={`lootCard ${loot[lootIndex].rarity?.toLowerCase()}`}
             onClick={(e) => {
               e.stopPropagation();
+              playUiTabClickSound();
               nextLoot();
             }}
             onMouseEnter={playHoverItemSound}
@@ -462,6 +466,7 @@ export default function Inventory({updateAll}: any) {
                   key={item.id}
                   className={`inventoryItem ${item.rarity?.toLowerCase()}`}
                   onMouseEnter={playHoverItemSound}
+                  onClick={playUiTabClickSound}
                 >
                   {renderEmoji(item)}
 

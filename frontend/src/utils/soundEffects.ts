@@ -62,50 +62,51 @@ const playTones = (tones: Tone[], masterGain = 0.08) => {
 };
 
 export const playSellSound = () => {
-  // coin click + small shine tail (game-like sell confirmation)
+  // warm coin-jingle for selling
   playTones(
     [
-      { frequency: 820, duration: 0.045, type: "triangle", gain: 0.85 },
-      { frequency: 1180, duration: 0.06, type: "triangle", gain: 0.65, delay: 0.03 },
-      { frequency: 1520, duration: 0.08, type: "sine", gain: 0.45, delay: 0.07 },
+      { frequency: 620, duration: 0.05, type: "triangle", gain: 0.8 },
+      { frequency: 840, duration: 0.055, type: "sine", gain: 0.65, delay: 0.04 },
+      { frequency: 1060, duration: 0.06, type: "sine", gain: 0.5, delay: 0.085 },
     ],
-    0.105,
+    0.1,
   );
 };
 
 export const playBuySound = () => {
-  // softer than sell: coin tick + short whoosh
+  // soft coin rustle: tiny click + gentle shimmer
   playTones(
     [
-      { frequency: 720, duration: 0.035, type: "square", gain: 0.5 },
-      { frequency: 980, duration: 0.06, type: "triangle", gain: 0.45, delay: 0.025 },
-      { frequency: 580, duration: 0.12, type: "sine", gain: 0.35, delay: 0.02, glideTo: 420 },
+      { frequency: 540, duration: 0.045, type: "sine", gain: 0.55 },
+      { frequency: 700, duration: 0.05, type: "triangle", gain: 0.45, delay: 0.03 },
+      { frequency: 880, duration: 0.06, type: "sine", gain: 0.35, delay: 0.07 },
+      { frequency: 740, duration: 0.08, type: "sine", gain: 0.25, delay: 0.04, glideTo: 640 },
     ],
-    0.085,
+    0.09,
   );
 };
 
 export const playErrorBlipSound = () => {
-  // low, short and muted "not enough coins"
+  // low and muted, but audible
   playTones(
     [
-      { frequency: 180, duration: 0.09, type: "triangle", gain: 0.4 },
-      { frequency: 145, duration: 0.07, type: "sine", gain: 0.3, delay: 0.03 },
+      { frequency: 170, duration: 0.1, type: "triangle", gain: 0.55 },
+      { frequency: 140, duration: 0.08, type: "sine", gain: 0.4, delay: 0.03 },
     ],
-    0.055,
+    0.08,
   );
 };
 
 export const playChestOpenSound = () => {
-  // chest opening feel: heavy unlock + wooden creak + reward sparkle
+  // softer "whoomph" chest open with gentle reveal sparkle
   playTones(
     [
-      { frequency: 155, duration: 0.08, type: "square", gain: 0.7 },
-      { frequency: 120, duration: 0.18, type: "triangle", gain: 0.45, delay: 0.04, glideTo: 210 },
-      { frequency: 980, duration: 0.12, type: "sine", gain: 0.28, delay: 0.14 },
-      { frequency: 1320, duration: 0.09, type: "sine", gain: 0.2, delay: 0.2 },
+      { frequency: 95, duration: 0.16, type: "sine", gain: 0.55, glideTo: 150 },
+      { frequency: 140, duration: 0.14, type: "triangle", gain: 0.42, delay: 0.05, glideTo: 220 },
+      { frequency: 560, duration: 0.09, type: "sine", gain: 0.24, delay: 0.16 },
+      { frequency: 860, duration: 0.08, type: "sine", gain: 0.18, delay: 0.22 },
     ],
-    0.095,
+    0.09,
   );
 };
 
@@ -182,16 +183,16 @@ export const playSessionCoinsSound = () => {
 };
 
 export const playUiTabClickSound = () => {
-  playTones([{ frequency: 620, duration: 0.03, type: "triangle", gain: 0.22 }], 0.05);
+  playTones([{ frequency: 620, duration: 0.032, type: "triangle", gain: 0.3 }], 0.07);
 };
 
 export const playHoverItemSound = () => {
   const now = Date.now();
-  if (now - lastHoverAt < 45) return;
+  if (now - lastHoverAt < 32) return;
   lastHoverAt = now;
 
   playTones(
-    [{ frequency: 860, duration: 0.022, type: "sine", gain: 0.16 }],
-    0.04,
+    [{ frequency: 860, duration: 0.024, type: "sine", gain: 0.2 }],
+    0.055,
   );
 };
