@@ -4,6 +4,14 @@ import "../styles/inventory.css";
 import CoinAnimation from "./CoinAnimation";
 import MixColorPopup from "./MixColorPopup"; // путь поправь по своей структуре
 import {
+  formatRemainingHm,
+  getTimedBoostRemainingMs,
+  isLegendaryTimedEffect,
+  type BoostItem,
+  type InventoryResponse,
+  type UserEffect,
+} from "../types/boosts";
+import {
   playChestOpenSound,
   playHoverItemSound,
   playPaintApplySound,
@@ -14,10 +22,16 @@ import {
 
 const API = import.meta.env.VITE_API_URL;
 
-export default function Inventory({updateAll}: any) {
+type InventoryProps = {
+  updateAll: () => Promise<void>;
+};
+
+export default function Inventory({ updateAll }: InventoryProps) {
 
   const [items,setItems] = useState<any[]>([]);
   const [selected,setSelected] = useState<any|null>(null);
+  const [activeEffects, setActiveEffects] = useState<UserEffect[]>([]);
+  const [, setEffectTicker] = useState(0);
 
   const [loot,setLoot] = useState<any[]>([]);
   const [lootIndex,setLootIndex] = useState(0);
@@ -32,16 +46,18 @@ export default function Inventory({updateAll}: any) {
 
   const loadInventory = async () => {
     try {
-      const res = await axios.get(API + "/inventory");
+      const res = await axios.get<InventoryResponse>(API + "/inventory");
       const data = res.data;
 
       const merged = [
         ...(data.chests || []).map((i:any)=>({...i,itemType:"chest"})),
         ...(data.colorDrops || []).map((i:any)=>({...i,itemType:"colorDrop"})),
         ...(data.colors || []).map((i:any)=>({...i,itemType:"color"})),
+        ...(data.boosts || []).map((i: BoostItem) => ({ ...i, itemType: "boost" })),
       ];
 
       setItems(merged);
+      setActiveEffects(Array.isArray(data.activeEffects) ? data.activeEffects : []);
 
       // Выбираем первый элемент сразу после загрузки
       if (merged.length > 0) {
@@ -61,6 +77,13 @@ export default function Inventory({updateAll}: any) {
   useEffect(()=>{
     loadInventory();
   },[]);
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setEffectTicker((prev) => prev + 1);
+    }, 1000);
+    return () => window.clearInterval(interval);
+  }, []);
 
   /* ---------- OPEN CHEST ---------- */
 
@@ -124,6 +147,7 @@ export default function Inventory({updateAll}: any) {
 
   const sellItem = async (item: any, withSound = true) => {
     if (!item) return;
+    if (item.itemType === "boost") return;
 
     const sellValue = Math.floor(item.cost * 0.5);
 
@@ -153,6 +177,7 @@ export default function Inventory({updateAll}: any) {
 
     // Перебираем каждый элемент и вызываем sellItem
     for (const item of items) {
+      if (item.itemType === "boost") continue;
       if (!item || item.cost <= 0) continue;
 
       const sellValue = Math.floor(item.cost * 0.5);
@@ -171,6 +196,17 @@ export default function Inventory({updateAll}: any) {
 
     // Перезагружаем инвентарь
     await loadInventory();
+  };
+
+  const activateBoost = async (item: BoostItem) => {
+    try {
+      await axios.post(`${API}/inventory/boost/activate/${item.id}`);
+      playUiTabClickSound();
+      await updateAll();
+      await loadInventory();
+    } catch (err) {
+      console.error("Failed to activate boost", err);
+    }
   };
 
   /* ---------- ICON RENDER ---------- */
@@ -239,6 +275,32 @@ export default function Inventory({updateAll}: any) {
   return(
 
     <div className="inventoryContainer">
+      <div className="buffBar">
+        {activeEffects.length === 0 ? (
+          <div className="buffBarEmpty">No active buffs</div>
+        ) : (
+          activeEffects.map((effect) => {
+            if (effect.effectType === "COIN_X2_NEXT_SESSION") {
+              return (
+                <div key={effect.id} className="buffBadge">
+                  x2 coins • next session
+                </div>
+              );
+            }
+
+            const remainingMs = getTimedBoostRemainingMs(effect);
+            return (
+              <div
+                key={effect.id}
+                className={`buffBadge ${isLegendaryTimedEffect(effect) ? "legendaryBuff" : ""}`}
+              >
+                x2 coins • ends in {formatRemainingHm(remainingMs)}
+                {isLegendaryTimedEffect(effect) && <span className="legendaryTag">LEGENDARY</span>}
+              </div>
+            );
+          })
+        )}
+      </div>
 
       {/* ---------- GRID ---------- */}
 
@@ -339,11 +401,20 @@ export default function Inventory({updateAll}: any) {
                   </button>
               )}
 
+              {selected.itemType === "boost" && (
+                <button
+                  className="openChestBtn"
+                  onClick={() => activateBoost(selected as BoostItem)}
+                >
+                  Activate
+                </button>
+              )}
+
 
               
               {/* ---------- SELL BUTTONS ---------- */}
                 {/* Продажа выбранного предмета */}
-                {selected && selected.cost >= 0 && (
+                {selected && selected.itemType !== "boost" && selected.cost >= 0 && (
                   <button className="sellItemBtn" onClick={() => sellItem(selected)}>
                     Sell: {Math.floor(selected.cost * 0.5)}🪙
                   </button>
@@ -523,4 +594,3 @@ export default function Inventory({updateAll}: any) {
   );
 
 }
-

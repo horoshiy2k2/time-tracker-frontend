@@ -136,6 +136,12 @@
   font-weight: 700;
 }
 
+.boost {
+  background: rgba(255, 206, 112, 0.13);
+  border: 1px solid rgba(255, 183, 48, 0.35);
+  color: #a66300;
+}
+
 
 /* контейнер уведомлений */
 

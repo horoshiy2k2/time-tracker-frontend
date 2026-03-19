@@ -5,6 +5,11 @@ import CoinAnimation from "./components/CoinAnimation";
 import MonthHeatmap from "./components/MonthHeatmap";
 import Inventory from "./components/Inventory";
 import Shop from "./components/Shop";
+import {
+  formatRemainingHm,
+  getTimedBoostRemainingMs,
+  type UserEffect,
+} from "./types/boosts";
 
 import "./styles/buttons.css";
 import {
@@ -79,6 +84,9 @@ export default function App() {
   });
   const [themeModeLoading, setThemeModeLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [toastMessage, setToastMessage] = useState("");
+  const [activeEffects, setActiveEffects] = useState<UserEffect[]>([]);
+  const [, setEffectTicker] = useState(0);
 
   const CATEGORY_COLORS = [
     "#2563eb", // blue
@@ -92,14 +100,6 @@ export default function App() {
     "#84cc16", // lime
     "#ef4444", // red
   ];
-
-  const CHEST_COST: Record<string, number> = {
-    COMMON: 2,
-    UNCOMMON: 4,
-    RARE: 8,
-    EPIC: 16,
-    LEGENDARY: 32,
-  };
 
  const applyThemeToDocument = (themeData: ThemeState) => {
     const root = document.documentElement;
@@ -130,12 +130,13 @@ export default function App() {
     try {
       setLoading(true);
 
-      const [c, s, st, cs, u] = await Promise.all([
+      const [c, s, st, cs, u, effectsRes] = await Promise.all([
         axios.get(API + "/categories"),
         axios.get(API + "/sessions"),
         axios.get(API + "/stats"),
         axios.get(API + "/current-session"),
-        axios.get(API + "/user")
+        axios.get(API + "/user"),
+        axios.get(API + "/user/effects").catch(() => ({ data: { activeEffects: [] as UserEffect[] } })),
       ]);
 
       setCategories(c.data);
@@ -143,6 +144,9 @@ export default function App() {
       setStats(st.data);
       setCurrentSession(cs.data);
       setCoins(u.data.coins);
+      const effectsFromUser = Array.isArray(u.data?.activeEffects) ? u.data.activeEffects : [];
+      const effectsFromEndpoint = Array.isArray(effectsRes.data?.activeEffects) ? effectsRes.data.activeEffects : [];
+      setActiveEffects((effectsFromEndpoint.length > 0 ? effectsFromEndpoint : effectsFromUser) as UserEffect[]);
       await loadTheme();
 
     } catch (err) {
@@ -257,6 +261,7 @@ useEffect(() => {
     const res = await axios.post(API + "/current-session/stop");
 
     const coinsEarned = res.data.coinsEarned;
+    const multiplier = Number(res.data.multiplier || 1);
 
     if (coinsEarned > 0) {
       // добавляем анимацию монет
@@ -265,6 +270,9 @@ useEffect(() => {
     }
 
     playUiTabClickSound();
+    if (multiplier > 1) {
+      setToastMessage("Boost applied: x2 coins");
+    }
 
     setCurrentSession(null);
     setElapsedSeconds(0);
@@ -466,17 +474,8 @@ useEffect(() => {
   };
 
 
-  const updateAll = async (rarity: string) => {
+  const updateAll = async () => {
       load(); // чтобы обновились coins и inventory
-  };
-
-  const changeCoins = async (amount: number) => {
-    try {
-      const res = await axios.post(API + "/user/change-coins", { amount });
-      setCoins(res.data.coins);
-    } catch (err) {
-      console.error("Failed to change coins:", err);
-    }
   };
 
   const toggleNightMode = async () => {
@@ -525,6 +524,19 @@ useEffect(() => {
   return () => clearTimeout(timer);
 }, [errorMessage]);
 
+useEffect(() => {
+  const interval = window.setInterval(() => {
+    setEffectTicker((prev) => prev + 1);
+  }, 1000);
+  return () => clearInterval(interval);
+}, []);
+
+useEffect(() => {
+  if (!toastMessage) return;
+  const timer = setTimeout(() => setToastMessage(""), 2500);
+  return () => clearTimeout(timer);
+}, [toastMessage]);
+
 
 
 
@@ -542,6 +554,14 @@ useEffect(() => {
     playUiTabClickSound();
     setStatView(nextView);
   };
+
+  const nextSessionBoostActive = activeEffects.some(
+    (effect) => effect.effectType === "COIN_X2_NEXT_SESSION",
+  );
+  const timedBoostEffect = activeEffects.find((effect) => effect.effectType === "COIN_X2_TIMED");
+  const timedBoostLabel = timedBoostEffect
+    ? formatRemainingHm(getTimedBoostRemainingMs(timedBoostEffect))
+    : null;
 
   return (
     <div style={{ maxWidth: "800px", margin: "2em auto", padding: "2em", background: "var(--bg-color)", borderRadius: "16px", boxShadow: "0 2px 12px rgba(0,0,0,0.1)" }}>
@@ -562,7 +582,16 @@ useEffect(() => {
 
         {page === "timer" && (
         <>
-          <div className="timer-page" style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <div
+            className={`timer-page ${nextSessionBoostActive ? "timerBoostHighlight" : ""}`}
+            style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
+          >
+              {nextSessionBoostActive && (
+                <div className="timerBoostBadge">Next stop: x2 coins</div>
+              )}
+              {timedBoostLabel && (
+                <div className="timerBoostTimed">Coin boost active x2 ({timedBoostLabel} left)</div>
+              )}
               <HourProgressCircle seconds={elapsedSeconds} progressColor={theme.progressColor}/>
 
               {coinAnimations.map(ca => (
@@ -950,9 +979,25 @@ useEffect(() => {
 
         {page === "shop" && (
           <Shop
-            coins={coins}
-            changeCoins={changeCoins}
             buyChest={buyChest}
+            buyCoinBoostNextSession={async () => {
+              try {
+                await axios.post(`${API}/shop/buy-coin-boost-next-session`);
+                await load();
+                return 200;
+              } catch (err: any) {
+                return err.message;
+              }
+            }}
+            buyCoinBoostTimed={async () => {
+              try {
+                await axios.post(`${API}/shop/buy-coin-boost-timed`);
+                await load();
+                return 200;
+              } catch (err: any) {
+                return err.message;
+              }
+            }}
           />
         )}
 
@@ -987,6 +1032,11 @@ useEffect(() => {
           }}
         >
           {errorMessage}
+        </div>
+      )}
+      {toastMessage && (
+        <div className="boostToast">
+          {toastMessage}
         </div>
       )}
   </div>
