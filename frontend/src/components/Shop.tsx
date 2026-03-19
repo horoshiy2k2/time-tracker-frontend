@@ -1,9 +1,7 @@
 import { useState } from "react";
-import axios from "axios";
 import "../styles/shop.css";
 import CoinAnimation from "./CoinAnimation";
-
-const API = import.meta.env.VITE_API_URL;
+import { playBuySound, playErrorBlipSound, playHoverItemSound } from "../utils/soundEffects";
 
 const CHEST_COST: Record<string, number> = {
   COMMON: 10,
@@ -13,7 +11,7 @@ const CHEST_COST: Record<string, number> = {
   LEGENDARY: 200,
 };
 
-export default function Shop({ coins, changeCoins, buyChest }: any) {
+export default function Shop({ buyChest }: any) {
 
   const [notifications, setNotifications] = useState<any[]>([]);
   const [coinAnimAmount, setCoinAnimAmount] = useState<number | null>(null);
@@ -46,11 +44,13 @@ export default function Shop({ coins, changeCoins, buyChest }: any) {
       const cost = CHEST_COST[rarity];
       setCoinAnimAmount(-cost);
       addNotification(`${rarity} chest purchased`);
-     
+      playBuySound();
+
      } else {
       // покупка не удалась
       // addNotification(result || `Failed to buy ${rarity} chest`);
       addNotification('Not enough 🪙');
+      playErrorBlipSound();
     }
   };
 
@@ -63,6 +63,7 @@ export default function Shop({ coins, changeCoins, buyChest }: any) {
             key={c.rarity}
             className={`shopItem ${c.class}`}
             onClick={() => handleBuy(c.rarity)}
+            onMouseEnter={playHoverItemSound}
           >
             <div className="shopEmoji">📦</div>
             <div className="shopName">{c.name}</div>

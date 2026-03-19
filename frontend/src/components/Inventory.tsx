@@ -5,6 +5,8 @@ import CoinAnimation from "./CoinAnimation";
 import MixColorPopup from "./MixColorPopup"; // путь поправь по своей структуре
 import {
   playChestOpenSound,
+  playHoverItemSound,
+  playPaintApplySound,
   playRewardFlipSound,
   playSellSound,
 } from "../utils/soundEffects";
@@ -241,6 +243,7 @@ export default function Inventory({updateAll}: any) {
               selected?.id === item.id ? "selected" : ""
             }`}
             onClick={()=>setSelected(item)}
+            onMouseEnter={playHoverItemSound}
           >
 
             {renderEmoji(item)}
@@ -304,6 +307,7 @@ export default function Inventory({updateAll}: any) {
                           colorId: selected.id,
                           target
                         });
+                        playPaintApplySound(target);
                         updateAll(); // обновляем цвета после применения
                       }}
                     >
@@ -436,6 +440,7 @@ export default function Inventory({updateAll}: any) {
               e.stopPropagation();
               nextLoot();
             }}
+            onMouseEnter={playHoverItemSound}
           >
             <div className="lootEmoji">{renderEmoji(loot[lootIndex])}</div>
 
@@ -456,6 +461,7 @@ export default function Inventory({updateAll}: any) {
                 <div
                   key={item.id}
                   className={`inventoryItem ${item.rarity?.toLowerCase()}`}
+                  onMouseEnter={playHoverItemSound}
                 >
                   {renderEmoji(item)}
 
