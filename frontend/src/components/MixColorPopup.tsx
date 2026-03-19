@@ -168,6 +168,17 @@ export default function MixColorPopup({
       <div className="lootOverlay" onClick={onClose}>
 
         <div className="lootCard" style={{padding: '10px'}} onClick={e => e.stopPropagation()}>
+          <button
+            type="button"
+            className="lootCloseBtn"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClose();
+            }}
+            aria-label="Close color mix popup"
+          >
+            ✕
+          </button>
 
           <h2>Available Color Drops</h2>
 
