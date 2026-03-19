@@ -19,9 +19,10 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import "./styles/shop.css";
-
-
-
+import {
+  playSessionCoinsSound,
+  playUiTabClickSound,
+} from "./utils/soundEffects";
 
 
 
@@ -244,6 +245,8 @@ useEffect(() => {
       categoryId: selectedCategory,
     });
 
+    playUiTabClickSound();
+
     const cs = await axios.get(API + "/current-session");
     setCurrentSession(cs.data);
   };
@@ -258,7 +261,10 @@ useEffect(() => {
     if (coinsEarned > 0) {
       // добавляем анимацию монет
       setCoinAnimations(prev => [...prev, { id: Date.now(), amount: coinsEarned }]);
+      playSessionCoinsSound();
     }
+
+    playUiTabClickSound();
 
     setCurrentSession(null);
     setElapsedSeconds(0);
@@ -527,6 +533,16 @@ useEffect(() => {
 
 
 
+  const handlePageChange = (nextPage: "timer" | "statistic" | "settings" | "shop" | "inventory") => {
+    playUiTabClickSound();
+    setPage(nextPage);
+  };
+
+  const handleStatViewChange = (nextView: "day" | "week" | "month") => {
+    playUiTabClickSound();
+    setStatView(nextView);
+  };
+
   return (
     <div style={{ maxWidth: "800px", margin: "2em auto", padding: "2em", background: "var(--bg-color)", borderRadius: "16px", boxShadow: "0 2px 12px rgba(0,0,0,0.1)" }}>
       <div>
@@ -537,11 +553,11 @@ useEffect(() => {
           paddingBottom: "1em",
           borderBottom: "1px solid #eee"
         }}>
-          <NavButton active={page === "timer"} onClick={() => setPage("timer")}>Timer</NavButton>
-          <NavButton active={page === "statistic"} onClick={() => setPage("statistic")}>Statistic</NavButton>
-          <NavButton active={page === "settings"} onClick={() => setPage("settings")}>Settings</NavButton>
-          <NavButton active={page === "shop"} onClick={() => setPage("shop")}>Shop</NavButton>
-          <NavButton active={page === "inventory"} onClick={() => setPage("inventory")}>Inventory</NavButton>
+          <NavButton active={page === "timer"} onClick={() => handlePageChange("timer")}>Timer</NavButton>
+          <NavButton active={page === "statistic"} onClick={() => handlePageChange("statistic")}>Statistic</NavButton>
+          <NavButton active={page === "settings"} onClick={() => handlePageChange("settings")}>Settings</NavButton>
+          <NavButton active={page === "shop"} onClick={() => handlePageChange("shop")}>Shop</NavButton>
+          <NavButton active={page === "inventory"} onClick={() => handlePageChange("inventory")}>Inventory</NavButton>
         </div>
 
         {page === "timer" && (
@@ -598,7 +614,7 @@ useEffect(() => {
           <div style={{ marginTop: "1em", marginBottom: "2em", display: "flex", justifyContent: "center" }}>
             <button
               className={`stat-button ${statView === "day" ? "active" : ""}`}
-              onClick={() => setStatView("day")}
+              onClick={() => handleStatViewChange("day")}
             >
               Day
             </button>
@@ -606,7 +622,7 @@ useEffect(() => {
             <button
               className={`stat-button ${statView === "week" ? "active" : ""}`}
               style={{ marginLeft: 8 }}
-              onClick={() => setStatView("week")}
+              onClick={() => handleStatViewChange("week")}
             >
               Week
             </button>
@@ -614,7 +630,7 @@ useEffect(() => {
             <button
               className={`stat-button ${statView === "month" ? "active" : ""}`}
               style={{ marginLeft: 8 }}
-              onClick={() => setStatView("month")}
+              onClick={() => handleStatViewChange("month")}
             >
               Month
             </button>

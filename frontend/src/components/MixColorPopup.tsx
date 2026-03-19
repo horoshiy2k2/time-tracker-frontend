@@ -2,6 +2,11 @@ import React, { useState } from "react";
 import axios from "axios";
 import "../styles/mixColorPopup.css";
 import { getClosestColorName } from "../utils/colorNames";
+import {
+  playHoverItemSound,
+  playMixSuccessSound,
+  playUiTabClickSound,
+} from "../utils/soundEffects";
 
 export enum Rarity {
   COMMON = "COMMON",
@@ -110,6 +115,7 @@ export default function MixColorPopup({
       const newColorWithStyle = { ...created, rarity: created.rarity.toLowerCase() };
 
       setNewColor(newColorWithStyle);
+      playMixSuccessSound();
       onCreateColor(created, drops);
 
       setSelectedDrops([null, null, null]);
@@ -178,7 +184,11 @@ export default function MixColorPopup({
                   className={`mixItem ${drop.rarity.toLowerCase()} ${
                     isSelected(drop) ? "mixDisabled" : ""
                   }`}
-                  onClick={() => toggleDrop(drop)}
+                  onClick={() => {
+                    playUiTabClickSound();
+                    toggleDrop(drop);
+                  }}
+                  onMouseEnter={playHoverItemSound}
                 >
 
                   {renderEmoji(drop)} 
@@ -210,7 +220,12 @@ export default function MixColorPopup({
                     <div
                       key={i}
                       className={`mixItem mixSlotItem ${drop?.rarity?.toLowerCase() || ""} ${drop ? "" : "mixSlotItemEmpty"}`}
-                      onClick={() => drop && toggleDrop(drop)}
+                      onClick={() => {
+                        if (!drop) return;
+                        playUiTabClickSound();
+                        toggleDrop(drop);
+                      }}
+                      onMouseEnter={playHoverItemSound}
                     >
 
                       {drop ? (

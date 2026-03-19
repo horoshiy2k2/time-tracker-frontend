@@ -3,6 +3,14 @@ import axios from "axios";
 import "../styles/inventory.css";
 import CoinAnimation from "./CoinAnimation";
 import MixColorPopup from "./MixColorPopup"; // путь поправь по своей структуре
+import {
+  playChestOpenSound,
+  playHoverItemSound,
+  playPaintApplySound,
+  playRewardFlipSound,
+  playSellSound,
+  playUiTabClickSound,
+} from "../utils/soundEffects";
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -64,6 +72,8 @@ export default function Inventory({updateAll}: any) {
       setExploding(true);
     },600);
 
+    playChestOpenSound();
+
     const res=await axios.post(API+"/inventory/chest/open/"+id);
 
     setTimeout(()=>{
@@ -87,6 +97,7 @@ export default function Inventory({updateAll}: any) {
 
   const nextLoot = ()=>{
 
+    playRewardFlipSound();
     setLootIndex(prev => prev + 1);
 
   };
@@ -103,7 +114,7 @@ export default function Inventory({updateAll}: any) {
 
   };
 
-  const sellItem = async (item: InventoryItemType) => {
+  const sellItem = async (item: any, withSound = true) => {
     if (!item) return;
 
     const sellValue = Math.floor(item.cost * 0.5);
@@ -113,6 +124,9 @@ export default function Inventory({updateAll}: any) {
       console.log("Item sold:", res.data);
 
       setCoinAnimAmount(sellValue); // 🔥 показать +монеты
+      if (withSound) {
+        playSellSound();
+      }
 
       updateAll(); // обновляем состояние приложения
 
@@ -135,7 +149,7 @@ export default function Inventory({updateAll}: any) {
 
       const sellValue = Math.floor(item.cost * 0.5);
       try {
-        await sellItem(item); // sellItem уже обновляет инвентарь и показывает анимацию
+        await sellItem(item, true); // звук играет на каждую продажу
         totalCoins += sellValue;
       } catch (err: any) {
         console.error("Failed to sell item", item.id, err);
@@ -228,7 +242,11 @@ export default function Inventory({updateAll}: any) {
             className={`inventoryItem ${item.rarity?.toLowerCase() || ""} ${
               selected?.id === item.id ? "selected" : ""
             }`}
-            onClick={()=>setSelected(item)}
+            onClick={()=>{
+              playUiTabClickSound();
+              setSelected(item);
+            }}
+            onMouseEnter={playHoverItemSound}
           >
 
             {renderEmoji(item)}
@@ -292,6 +310,7 @@ export default function Inventory({updateAll}: any) {
                           colorId: selected.id,
                           target
                         });
+                        playPaintApplySound(target);
                         updateAll(); // обновляем цвета после применения
                       }}
                     >
@@ -422,8 +441,10 @@ export default function Inventory({updateAll}: any) {
             className={`lootCard ${loot[lootIndex].rarity?.toLowerCase()}`}
             onClick={(e) => {
               e.stopPropagation();
+              playUiTabClickSound();
               nextLoot();
             }}
+            onMouseEnter={playHoverItemSound}
           >
             <div className="lootEmoji">{renderEmoji(loot[lootIndex])}</div>
 
@@ -444,6 +465,8 @@ export default function Inventory({updateAll}: any) {
                 <div
                   key={item.id}
                   className={`inventoryItem ${item.rarity?.toLowerCase()}`}
+                  onMouseEnter={playHoverItemSound}
+                  onClick={playUiTabClickSound}
                 >
                   {renderEmoji(item)}
 
