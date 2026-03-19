@@ -3,6 +3,11 @@ import axios from "axios";
 import "../styles/inventory.css";
 import CoinAnimation from "./CoinAnimation";
 import MixColorPopup from "./MixColorPopup"; // путь поправь по своей структуре
+import {
+  playChestOpenSound,
+  playRewardFlipSound,
+  playSellSound,
+} from "../utils/soundEffects";
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -64,6 +69,8 @@ export default function Inventory({updateAll}: any) {
       setExploding(true);
     },600);
 
+    playChestOpenSound();
+
     const res=await axios.post(API+"/inventory/chest/open/"+id);
 
     setTimeout(()=>{
@@ -87,6 +94,7 @@ export default function Inventory({updateAll}: any) {
 
   const nextLoot = ()=>{
 
+    playRewardFlipSound();
     setLootIndex(prev => prev + 1);
 
   };
@@ -103,7 +111,7 @@ export default function Inventory({updateAll}: any) {
 
   };
 
-  const sellItem = async (item: InventoryItemType) => {
+  const sellItem = async (item: any, withSound = true) => {
     if (!item) return;
 
     const sellValue = Math.floor(item.cost * 0.5);
@@ -113,6 +121,9 @@ export default function Inventory({updateAll}: any) {
       console.log("Item sold:", res.data);
 
       setCoinAnimAmount(sellValue); // 🔥 показать +монеты
+      if (withSound) {
+        playSellSound();
+      }
 
       updateAll(); // обновляем состояние приложения
 
@@ -135,7 +146,7 @@ export default function Inventory({updateAll}: any) {
 
       const sellValue = Math.floor(item.cost * 0.5);
       try {
-        await sellItem(item); // sellItem уже обновляет инвентарь и показывает анимацию
+        await sellItem(item, false); // sellItem уже обновляет инвентарь и показывает анимацию
         totalCoins += sellValue;
       } catch (err: any) {
         console.error("Failed to sell item", item.id, err);
@@ -145,6 +156,7 @@ export default function Inventory({updateAll}: any) {
     // Показываем суммарную анимацию монет
     if (totalCoins > 0) {
       setCoinAnimAmount(totalCoins);
+      playSellSound();
     }
 
     // Перезагружаем инвентарь
