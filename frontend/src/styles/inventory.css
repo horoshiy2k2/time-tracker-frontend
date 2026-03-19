@@ -254,14 +254,30 @@ transform:scale(0.95);
 
 /* ---------- CLOSE ---------- */
 
-/*.lootClose {
+.lootCloseBtn {
   position: absolute;
-  right: 25px;
-  top: 25px;
-  font-size: 30px;
+  right: 14px;
+  top: 14px;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.06);
+  color: #1f2937;
+  font-size: 24px;
+  line-height: 1;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, transform 0.2s ease;
   z-index: 1000;
-}*/
+}
+
+.lootCloseBtn:hover {
+  background: rgba(0, 0, 0, 0.12);
+  transform: scale(1.05);
+}
 
 /* ---------- FINAL GRID ---------- */
 
@@ -400,6 +416,15 @@ body.night .lootCard{
   background:#1b1f27;
   border:1px solid #2a2f3a;
   box-shadow:0 25px 80px rgba(0,0,0,0.6);
+}
+
+body.night .lootCloseBtn{
+  background: rgba(255, 255, 255, 0.12);
+  color: #f9fafb;
+}
+
+body.night .lootCloseBtn:hover{
+  background: rgba(255, 255, 255, 0.2);
 }
 
 /* ========================= */

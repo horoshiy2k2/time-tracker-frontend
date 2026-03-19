@@ -102,6 +102,14 @@ export default function Inventory({updateAll}: any) {
 
   };
 
+  const handleLootOverlayClick = () => {
+    if (lootIndex < loot.length) {
+      nextLoot();
+      return;
+    }
+    closeLoot();
+  };
+
   /* ---------- CLOSE LOOT ---------- */
 
   const closeLoot = async ()=>{
@@ -426,15 +434,8 @@ export default function Inventory({updateAll}: any) {
 
         <div
         className="lootOverlay"
-        onClick={closeLoot}
+        onClick={handleLootOverlayClick}
         >
-
-        <div
-        className="lootClose"
-        onClick={closeLoot}
-        >
-        {/*✖*/}
-        </div>
 
         {lootIndex < loot.length ? (
           <div
@@ -446,6 +447,17 @@ export default function Inventory({updateAll}: any) {
             }}
             onMouseEnter={playHoverItemSound}
           >
+            <button
+              type="button"
+              className="lootCloseBtn"
+              onClick={(e) => {
+                e.stopPropagation();
+                closeLoot();
+              }}
+              aria-label="Close loot popup"
+            >
+              ✕
+            </button>
             <div className="lootEmoji">{renderEmoji(loot[lootIndex])}</div>
 
             <h2>{loot[lootIndex].name}</h2>
@@ -457,7 +469,18 @@ export default function Inventory({updateAll}: any) {
             Cost: {loot[lootIndex].cost}🪙
           </div>
         ) : (
-          <div className="lootCard" onClick={(e) => e.stopPropagation()}>
+          <div className="lootCard">
+            <button
+              type="button"
+              className="lootCloseBtn"
+              onClick={(e) => {
+                e.stopPropagation();
+                closeLoot();
+              }}
+              aria-label="Close loot popup"
+            >
+              ✕
+            </button>
             <h2>Chest opened</h2>
 
             <div className="lootGrid">
@@ -500,5 +523,4 @@ export default function Inventory({updateAll}: any) {
   );
 
 }
-
 
