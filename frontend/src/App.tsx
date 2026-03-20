@@ -79,6 +79,10 @@ export default function App() {
   });
   const [themeModeLoading, setThemeModeLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [newMultiplier, setNewMultiplier] = useState(1);
+  const [editingMultiplier, setEditingMultiplier] = useState(1);
+  const [isOpen, setIsOpen] = useState(false);
+  const selected = categories.find(c => c.id === selectedCategory);
 
   const CATEGORY_COLORS = [
     "#2563eb", // blue
@@ -177,13 +181,14 @@ export default function App() {
 
     await axios.put(API + "/categories/" + id, {
       name: editingName,
+      multiplier: Number(editingMultiplier) || 1
     });
 
     setEditingId(null);
     setEditingName("");
+    setEditingMultiplier(1);
     load();
   };
-
 
   const updateSession = async (id: number) => {
     // создаём дату в GMT+3
@@ -258,6 +263,8 @@ useEffect(() => {
 
     const coinsEarned = res.data.coinsEarned;
 
+    console.log(res);
+
     if (coinsEarned > 0) {
       // добавляем анимацию монет
       setCoinAnimations(prev => [...prev, { id: Date.now(), amount: coinsEarned }]);
@@ -277,10 +284,16 @@ useEffect(() => {
 };
 
 
-  const createCategory = async () => {
+   const createCategory = async () => {
     if (!newCategory.trim()) return;
-    await axios.post(API + "/categories", { name: newCategory });
+
+    await axios.post(API + "/categories", {
+      name: newCategory,
+      multiplier: Number(newMultiplier) || 1
+    });
+
     setNewCategory("");
+    setNewMultiplier(1);
     load();
   };
 
@@ -583,27 +596,128 @@ useEffect(() => {
                 {!currentSession ? "Start" : "Stop"}
               </button>
 
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                disabled={!!currentSession} // блокируем, если есть currentSession
+              <div style={{ position: "relative", minWidth: "220px" }}>
+  
+
+
+
+              {/* SELECT BUTTON */}
+              <div
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (!currentSession) setIsOpen(!isOpen);
+                }}
                 style={{
                   padding: "0.6em 1em",
                   borderRadius: "12px",
-                  border: "1px solid #ccc",
+                  border: "1px solid var(--dropdown-border)",
                   fontSize: "1em",
                   marginBottom: "1em",
-                  minWidth: "200px",
                   cursor: currentSession ? "not-allowed" : "pointer",
+                  background: currentSession
+                    ? "var(--dropdown-hover)"
+                    : "var(--dropdown-bg)",
+                  color: "var(--dropdown-text)",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  userSelect: "none"
                 }}
               >
-                {categories.length === 0 && <option value="no-category">No category</option>}
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+                {selected ? (
+                  <span>
+                    {selected.name}{" "}
+                    <span
+                      style={{
+                        opacity: 0.6,
+                        color: "var(--dropdown-secondary)"
+                      }}
+                    >
+                      x{selected.multiplier}
+                    </span>
+                  </span>
+                ) : (
+                  <span style={{ opacity: 0.5 }}>
+                    Select category
+                  </span>
+                )}
+
+                <span style={{ opacity: 0.5 }}>
+                  ▼
+                </span>
+              </div>
+
+              {/* DROPDOWN */}
+              {isOpen && !currentSession && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "100%",
+                    left: 0,
+                    right: 0,
+                    background: "var(--dropdown-bg)",
+                    border: "1px solid var(--dropdown-border)",
+                    borderRadius: "12px",
+                    boxShadow: "0 8px 20px rgba(0,0,0,0.2)",
+                    zIndex: 10,
+                    overflow: "hidden",
+                    userSelect: "none"
+                  }}
+                >
+                  {categories.length === 0 && (
+                    <div
+                      style={{
+                        padding: "0.6em 1em",
+                        opacity: 0.5,
+                        color: "var(--dropdown-secondary)"
+                      }}
+                    >
+                      No category
+                    </div>
+                  )}
+
+                  {categories.map((c) => (
+                    <div
+                      key={c.id}
+                      onClick={() => {
+                        setSelectedCategory(c.id);
+                        setIsOpen(false);
+                      }}
+                      style={{
+                        padding: "0.6em 1em",
+                        cursor: "pointer",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        color: "var(--dropdown-text)",
+                        transition: "background 0.2s"
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = "var(--dropdown-hover)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = "transparent";
+                      }}
+                    >
+                      <span>{c.name}</span>
+
+                      <span
+                        style={{
+                          opacity: 0.6,
+                          fontSize: "0.9em",
+                          color: "var(--dropdown-secondary)"
+                        }}
+                      >
+                        x{c.multiplier}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+
+
+              )}
+            </div>
 
             </div>
           </>
@@ -819,48 +933,116 @@ useEffect(() => {
         {page === "settings" && (
           <div className="stable-text-page">
             <h2>Manage Categories</h2>
-            <input
-              className="categoryInput"
-              value={newCategory}
-              onChange={(e) => setNewCategory(e.target.value)}
-            />
-            <button onClick={createCategory}>Add</button>
 
+            {/* CREATE */}
+            <div style={{ display: "flex", gap: "0.5em" }}>
+              <input
+                className="categoryInput"
+                placeholder="Category name"
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+              />
 
+              <input
+                type="number"
+                step="0.1"
+                min="0"
+                style={{ width: "80px" }}
+                value={newMultiplier}
+                onChange={(e) => setNewMultiplier(e.target.value)}
+              />
 
+              <button onClick={createCategory}>Add</button>
+            </div>
+
+            {/* LIST */}
             <div style={{ marginTop: "1.5em" }}>
               {categories.map((c) => (
                 <div key={c.id} className="categoryItem">
                   {editingId === c.id ? (
                     <>
-                      <input
-                        className="categoryEditInput"
-                        value={editingName}
-                        onChange={(e) => setEditingName(e.target.value)}
-                      />
-                      <button onClick={() => updateCategory(c.id)}>Save</button>
-                      <button
-                        onClick={() => {
-                          setEditingId(null);
-                          setEditingName("");
+                      {/* CATEGORY FIELD */}
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.2em" }}>
+                        <span style={{ fontSize: "0.85em", opacity: 0.7 }}>
+                          Category
+                        </span>
+
+                        <input
+                          className="categoryEditInput"
+                          value={editingName}
+                          onChange={(e) => setEditingName(e.target.value)}
+                        />
+                      </div>
+
+                      {/* MULTIPLIER FIELD */}
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "0.2em",
+                          marginLeft: "1em"
                         }}
                       >
-                        Cancel
-                      </button>
+                        <span style={{ fontSize: "0.85em", opacity: 0.7 }}>
+                          Multiplier
+                        </span>
+
+                        <input
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          style={{ width: "100px" }}
+                          value={editingMultiplier}
+                          onChange={(e) => setEditingMultiplier(e.target.value)}
+                        />
+
+                        {/* QUICK BUTTONS */}
+                        <div style={{ display: "flex", gap: "0.3em", marginTop: "0.2em" }}>
+                          {[0.5, 1, 1.5, 2].map((m) => (
+                            <button key={m} onClick={() => setEditingMultiplier(m)}>
+                              x{m}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* ACTIONS */}
+                      <div style={{ marginLeft: "1em", display: "flex", alignItems: "flex-end", gap: "0.5em" }}>
+                        <button onClick={() => updateCategory(c.id)}>Save</button>
+
+                        <button
+                          onClick={() => {
+                            setEditingId(null);
+                            setEditingName("");
+                            setEditingMultiplier(1);
+                          }}
+                        >
+                          Cancel
+                        </button>
+                      </div>
                     </>
                   ) : (
                     <>
-                      <span>{c.name}</span>
+                      {/* VIEW MODE */}
+                      <span>
+                        {c.name}{" "}
+                        <span style={{ opacity: 0.7 }}>
+                          x{c.multiplier.toFixed(1)}
+                        </span>
+                      </span>
+
                       <div>
                         <button
                           onClick={() => {
                             setEditingId(c.id);
                             setEditingName(c.name);
+                            setEditingMultiplier(c.multiplier);
                           }}
                           style={{ marginRight: "0.5em" }}
                         >
                           Edit
                         </button>
+
                         <button onClick={() => deleteCategory(c.id)}>
                           Delete
                         </button>
