@@ -10,7 +10,56 @@
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(120px,1fr));
   gap:5px;
+  padding-top: 20px;
 }
+
+.activeBoostBar {
+  position: absolute;
+  top: -1.5em;
+  left: 9%;
+  transform: translateX(-50%);
+
+  padding: 6px 14px;
+  border-radius: 999px;
+
+  font-weight: 500;
+  font-size: 16px;
+
+  color: white;
+
+  /* 🟡 мягкое золото (почти прозрачное) */
+  background: linear-gradient(
+    90deg,
+    rgba(255, 215, 0, 0.7),
+    rgba(255, 165, 0, 0.55)
+  );
+
+  /* 🎨 лёгкое свечение от темы */
+  box-shadow:
+    0 0 8px color-mix(in srgb, var(--button-color) 50%, transparent 50%);
+
+  backdrop-filter: blur(6px);
+
+  z-index: 10;
+  pointer-events: none;
+
+  animation: pulseGlow 4s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0% {
+    box-shadow:
+      0 0 6px color-mix(in srgb, var(--button-color) 40%, transparent 60%);
+  }
+  50% {
+    box-shadow:
+      0 0 14px color-mix(in srgb, var(--button-color) 60%, transparent 40%);
+  }
+  100% {
+    box-shadow:
+      0 0 6px color-mix(in srgb, var(--button-color) 40%, transparent 60%);
+  }
+} 
 
 .inventoryDetail{
 

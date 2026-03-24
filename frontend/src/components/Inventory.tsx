@@ -27,6 +27,10 @@ export default function Inventory({updateAll}: any) {
   const [exploding, setExploding] = useState(false);
   const [coinAnimAmount, setCoinAnimAmount] = useState<number | null>(null);
   const [showMixPopup, setShowMixPopup] = useState(false);
+  const [activeBoost, setActiveBoost] = useState<any>(null);
+  const [timeLeft, setTimeLeft] = useState("");
+
+
 
   /* ---------- LOAD INVENTORY ---------- */
 
@@ -35,10 +39,45 @@ export default function Inventory({updateAll}: any) {
       const res = await axios.get(API + "/inventory");
       const data = res.data;
 
+      // ---------- ACTIVE BOOST ----------
+      if (data.user?.coinMultiplierUntil) {
+        const now = new Date();
+        const until = new Date(data.user.coinMultiplierUntil);
+
+        if (until > now) {
+          setActiveBoost({
+            multiplier: data.user.coinMultiplier,
+            until
+          });
+
+          const now = new Date().getTime();
+          const end = new Date(data.user.coinMultiplierUntil).getTime();
+          const diff = end - now;
+
+          const totalSec = Math.floor(diff / 1000);
+          const h = Math.floor(totalSec / 3600);
+          const m = Math.floor((totalSec % 3600) / 60);
+          const s = totalSec % 60;
+
+          setTimeLeft(
+            `${h}:${m.toString().padStart(2, "0")}:${s
+              .toString()
+              .padStart(2, "0")}`
+          );
+
+
+        } else {
+          setActiveBoost(null);
+        }
+      } else {
+        setActiveBoost(null);
+      }
+
       const merged = [
         ...(data.chests || []).map((i:any)=>({...i,itemType:"chest"})),
         ...(data.colorDrops || []).map((i:any)=>({...i,itemType:"colorDrop"})),
         ...(data.colors || []).map((i:any)=>({...i,itemType:"color"})),
+        ...(data.boosts || []).map((i:any)=>({...i,itemType:"boost"})),
       ];
 
       setItems(merged);
@@ -61,6 +100,35 @@ export default function Inventory({updateAll}: any) {
   useEffect(()=>{
     loadInventory();
   },[]);
+
+  useEffect(() => {
+    if (!activeBoost) return;
+
+    const interval = setInterval(() => {
+      const now = new Date();
+      const diff = activeBoost.until.getTime() - now.getTime();
+
+      if (diff <= 0) {
+        setActiveBoost(null);
+        setTimeLeft("");
+        clearInterval(interval);
+        return;
+      }
+
+      const totalSec = Math.floor(diff / 1000);
+      const h = Math.floor(totalSec / 3600);
+      const m = Math.floor((totalSec % 3600) / 60);
+      const s = totalSec % 60;
+
+      const formatted =
+        `${h}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+
+      setTimeLeft(formatted);
+
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [activeBoost]);
 
   /* ---------- OPEN CHEST ---------- */
 
@@ -212,6 +280,12 @@ export default function Inventory({updateAll}: any) {
       );
     }
 
+    if (item.itemType === "boost") {
+      return <div className="inventoryEmoji" style={{
+            fontSize: "3.2em"
+          }}>⚡</div>;
+    }
+
     return null;
 
   };
@@ -238,7 +312,13 @@ export default function Inventory({updateAll}: any) {
 
   return(
 
-    <div className="inventoryContainer">
+    <div className="inventoryContainer" style={{ position: "relative" }}>
+
+     {activeBoost && timeLeft && (
+      <div className="activeBoostBar">
+        🪙 x{activeBoost.multiplier} • {timeLeft}
+      </div>
+    )}
 
       {/* ---------- GRID ---------- */}
 
@@ -337,6 +417,20 @@ export default function Inventory({updateAll}: any) {
                   >
                     Mix
                   </button>
+              )}
+
+              {selected.itemType === "boost" && (
+                <button
+                  className="openChestBtn"
+                  onClick={async () => {
+                    await axios.post(API + "/inventory/use-coin-boost/" + selected.id);
+                    playUiTabClickSound();
+                    updateAll();
+                    await loadInventory();
+                  }}
+                >
+                  Use Boost ⚡
+                </button>
               )}
 
 
